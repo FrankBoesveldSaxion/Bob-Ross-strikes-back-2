@@ -6,13 +6,13 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
 
-public class WorldScreen extends ScalableGameScreen {
+public class WorldMap extends ScalableGameScreen {
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer mapRenderer;
     private Player player;
     private OrthographicCamera camara;
 
-    public WorldScreen() {
+    public WorldMap() {
         super(1280, 720);
     }
 

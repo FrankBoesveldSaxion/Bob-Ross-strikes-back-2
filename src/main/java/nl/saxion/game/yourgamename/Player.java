@@ -19,7 +19,8 @@ public class Player {
         float newX = x;
         float newY = y;
 
-        // Bereken nieuwe positie
+        // calculate the new position for the camara.
+        // player does not move the camara moved in WorldMap.java
         float speed = 100;
         if (GameApp.isKeyPressed(51)){
             newY += speed * delta; // W
@@ -44,7 +45,7 @@ public class Player {
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("collision");
 
         if (layer == null) {
-            System.out.println("ERROR: collision layer not found!");
+            System.out.println("ERROR: collision layer not found! check for a typo");
             return false;
         }
 
@@ -58,12 +59,13 @@ public class Player {
             return false;
         }
 
-        //returns true if there is a collision.
+        // returns true if there is a collision.
         return cell.getTile().getProperties().get("blocked").equals(true);
     }
 
     public void render() {
-        GameApp.drawCircle(x, y, 16);
+        //TODO replace with sprite logic
+        GameApp.drawCircle(x, y, 4);
     }
 
     public float getX() { return x; }
