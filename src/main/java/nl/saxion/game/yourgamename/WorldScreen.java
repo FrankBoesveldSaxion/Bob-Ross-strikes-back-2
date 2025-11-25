@@ -24,7 +24,8 @@ public class WorldScreen extends ScalableGameScreen {
         camara = new OrthographicCamera();
         camara.setToOrtho(false, 320,  180);
 
-//        tiledMap.getLayers().get("collision").setVisible(false);
+        //makes the collision layer invisible.
+        tiledMap.getLayers().get("collision").setVisible(false);
 
         player = new Player(320, 160, tiledMap);
     }
@@ -36,18 +37,18 @@ public class WorldScreen extends ScalableGameScreen {
 
         player.update(delta);
 
-        // camara follows plater
         camara.position.set(player.getX(), player.getY(), 0);
         camara.update();
 
         mapRenderer.setView(camara);
         mapRenderer.render();
 
-        //render sprite
         GameApp.startShapeRenderingFilled();
+        GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
         player.render();
         GameApp.endShapeRendering();
     }
+
 
     @Override
     public void hide() {
