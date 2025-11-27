@@ -1,8 +1,9 @@
-package nl.saxion.game.game;
+package nl.saxion.game.game.entities;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import nl.saxion.gameapp.GameApp;
+
+import static nl.saxion.game.game.entities.CollisionSystem.isCollision;
 
 public class Player {
     private float x;
@@ -35,32 +36,10 @@ public class Player {
             newX += speed * delta; // D
         }
 
-        if (!isCollision(newX, newY)) {
+        if (!isCollision(newX, newY, map)) {
             x = newX;
             y = newY;
         }
-    }
-
-    private boolean isCollision(float x, float y) {
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("collision");
-
-        if (layer == null) {
-            System.out.println("ERROR: collision layer not found! check for a typo");
-            return false;
-        }
-
-        //16: the tileSize
-        int tileX = (int) (x / 16);
-        int tileY = (int) (y / 16);
-
-        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
-
-         if (cell == null || cell.getTile() == null) {
-            return false;
-        }
-
-        // returns true if there is a collision.
-        return cell.getTile().getProperties().get("blocked").equals(true);
     }
 
     public void render() {
