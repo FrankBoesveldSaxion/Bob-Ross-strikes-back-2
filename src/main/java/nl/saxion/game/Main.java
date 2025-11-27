@@ -1,18 +1,16 @@
 package nl.saxion.game;
 
-import nl.saxion.game.yourgamename.WorldMap;
-import nl.saxion.game.yourgamename.YourGameScreen;
-import nl.saxion.game.yourgamename.MainMenuScreen;
+import nl.saxion.game.game.WorldMap;
+import nl.saxion.game.game.MainMenuScreen;
 import nl.saxion.gameapp.GameApp;
 
 public class Main {
     public static void main(String[] args) {
         // Add screens
         GameApp.addScreen("MainMenuScreen", new MainMenuScreen());
-        GameApp.addScreen("YourGameScreen", new YourGameScreen());
         GameApp.addScreen("WorldScreen", new WorldMap());
 
         // Start game loop and show main menu screen
-        GameApp.start("Your Game Name", 800, 450, 60, false, "MainMenuScreen");
+        GameApp.start("Bob Ross Strikes Back 2", 800, 450, 60, false, "MainMenuScreen");
     }
 }
