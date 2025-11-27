@@ -65,7 +65,7 @@ public class Player {
 
     public void render() {
         //TODO replace with sprite logic
-        GameApp.drawCircle(x, y, 4);
+        GameApp.drawCircle(x, y, 4 , "blue-600");
     }
 
     public float getX() { return x; }

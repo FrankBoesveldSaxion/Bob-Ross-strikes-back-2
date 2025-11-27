@@ -5,11 +5,13 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
+import nl.saxion.game.game.Enemy;
 
 public class WorldMap extends ScalableGameScreen {
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer mapRenderer;
     private Player player;
+    private Enemy enemy;
     private OrthographicCamera camara;
 
     public WorldMap() {
@@ -28,6 +30,8 @@ public class WorldMap extends ScalableGameScreen {
         tiledMap.getLayers().get("collision").setVisible(false);
 
         player = new Player(320, 160, tiledMap);
+
+        enemy = new Enemy(350, 160, tiledMap, player);
     }
 
     @Override
@@ -36,6 +40,8 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.clearScreen();
 
         player.update(delta);
+        enemy.update(delta);
+
 
         camara.position.set(player.getX(), player.getY(), 0);
         camara.update();
@@ -46,6 +52,7 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.startShapeRenderingFilled();
         GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
         player.render();
+        enemy.render();
         GameApp.endShapeRendering();
     }
 
