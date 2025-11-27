@@ -6,7 +6,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
-import nl.saxion.game.game.Enemy;
+import nl.saxion.game.game.entities.Enemy;
 
 public class WorldMap extends ScalableGameScreen {
     private TiledMap tiledMap;

@@ -1,8 +1,9 @@
-package nl.saxion.game.game;
+package nl.saxion.game.game.entities;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import nl.saxion.gameapp.GameApp;
+
+import static nl.saxion.game.game.systems.CollisionSystem.isCollision;
 
 public class Enemy {
 
@@ -37,32 +38,11 @@ public class Enemy {
         float newX = x + normX * speed;
         float newY = y + normY * speed;
 
-        if (!isCollision(newX, y)) x = newX;
-        if (!isCollision(x, newY)) y = newY;
-    }
-
-    private boolean isCollision(float x, float y) {
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("collision");
-
-        if (layer == null) {
-            System.out.println("ERROR: Collision layer not found!");
-            return false;
-        }
-
-        int tileX = (int) (x / 16);
-        int tileY = (int) (y / 16);
-
-        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
-
-        if (cell == null || cell.getTile() == null) return false;
-
-        return cell.getTile().getProperties().containsKey("blocked");
+        if (!isCollision(newX, y, map)) x = newX;
+        if (!isCollision(x, newY, map)) y = newY;
     }
 
     public void render() {
         GameApp.drawCircle(x, y, 4, "red-600");
     }
-
-    public float getX() { return x; }
-    public float getY() { return y; }
 }
