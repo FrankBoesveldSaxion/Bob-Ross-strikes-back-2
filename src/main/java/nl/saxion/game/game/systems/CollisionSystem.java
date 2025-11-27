@@ -1,4 +1,4 @@
-package nl.saxion.game.game.systems.;
+package nl.saxion.game.game.systems;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;

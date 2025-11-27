@@ -3,7 +3,7 @@ package nl.saxion.game.game.entities;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import nl.saxion.gameapp.GameApp;
 
-import static nl.saxion.game.game.entities.CollisionSystem.isCollision;
+import static nl.saxion.game.game.systems.CollisionSystem.isCollision;
 
 public class Player {
     private float x;
