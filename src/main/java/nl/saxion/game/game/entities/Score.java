@@ -27,7 +27,7 @@ public class Score {
 
         GameApp.drawTextCentered("basicSmall", "Score:", positionX, positionY + 50, Color.CYAN);
 
-        GameApp.drawTextCentered("cyberpunk", String.valueOf(score), positionX + 125, positionY + 20, Color.CYAN);
+        GameApp.drawTextCentered("cyberpunk", String.valueOf(score), positionX + 100, positionY + 20, Color.CYAN);
     }
 
     public void increaseScoreBy(int increase) {
