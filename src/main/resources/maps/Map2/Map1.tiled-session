@@ -1,0 +1,26 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "Tile Aseprite.tsx",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Alle Bestanden (*)",
+    "fileStates": {
+        "Tile Aseprite.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "C:/Users/Stach/Documents/Saxion/Jaar 1.2/It's in the Game/Github/Bob-Ross-strikes-back-2/src/main/resources/maps/map1",
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "Tile Aseprite.tsx"
+    ],
+    "project": "Map1.tiled-project",
+    "recentFiles": [
+        "Tile Aseprite.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}

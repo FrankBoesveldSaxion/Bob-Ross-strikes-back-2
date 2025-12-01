@@ -21,7 +21,7 @@ public class WorldMap extends ScalableGameScreen {
 
     @Override
     public void show() {
-        tiledMap = new TmxMapLoader().load("maps/test/testMap.tmx");
+        tiledMap = new TmxMapLoader().load("maps/Map2/True Map.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         camara = new OrthographicCamera();
