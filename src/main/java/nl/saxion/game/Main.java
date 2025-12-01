@@ -10,6 +10,7 @@ public class Main {
         GameApp.addScreen("MainMenuScreen", new MainMenuScreen());
         GameApp.addScreen("WorldScreen", new WorldMap());
 
+
         // Start game loop and show main menu screen
         GameApp.start("Bob Ross Strikes Back 2", 800, 450, 60, false, "MainMenuScreen");
     }

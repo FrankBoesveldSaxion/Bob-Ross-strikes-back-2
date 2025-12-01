@@ -4,6 +4,8 @@ import com.badlogic.gdx.Input;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
 
+import java.util.Arrays;
+
 public class MainMenuScreen extends ScalableGameScreen {
     public MainMenuScreen() {
         super(1280, 720);
