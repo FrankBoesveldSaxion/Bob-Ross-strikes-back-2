@@ -1,14 +1,16 @@
 package nl.saxion.game.game.entities;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import nl.saxion.game.game.systems.EnemyConfig;
+import nl.saxion.game.game.systems.SpriteConfig;
 import nl.saxion.gameapp.GameApp;
 
 import java.util.ArrayList;
 
 import static nl.saxion.game.game.systems.CollisionSystem.isCollision;
 
-public class Enemy {
+public class EnemyDrone {
 
     private float x;
     private float y;
@@ -19,14 +21,20 @@ public class Enemy {
     private final TiledMap map;
     private final Player player;
 
-    public Enemy(float startX, float startY, TiledMap map, Player player) {
+    public EnemyDrone(float startX, float startY, TiledMap map, Player player) {
         this.x = startX;
         this.y = startY;
         this.map = map;
         this.player = player;
     }
 
-    public void update(float delta, ArrayList<Enemy> allEnemies) {
+    public void show() {
+        SpriteConfig config = new SpriteConfig();
+        GameApp.addSpriteSheet("enemyDrone", "textures/animations/enemy/enemyDrone.png", config.getFrameWidth(), config.getFrameHeight());
+        GameApp.addAnimationFromSpritesheet("enemyDrone", "enemyDrone", config.getFrameDuration(), true);
+    }
+
+    public void update(float delta, ArrayList<EnemyDrone> allEnemies) {
         float targetX = player.getX();
         float targetY = player.getY();
 
@@ -35,7 +43,7 @@ public class Enemy {
         float dy = targetY - y;
 
         // Distance to player
-        float dist = (float)Math.sqrt(dx*dx + dy*dy);
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
         // Stop if extremely close to the player (prevents jittering)
         if (dist < 0.5f) return;
@@ -57,8 +65,7 @@ public class Enemy {
         if (!isCollision(x + moveX, y + moveY, map)) {
             x += moveX;
             y += moveY;
-        }
-        else {
+        } else {
             // 2. If full movement is blocked, try moving only horizontally
             if (!isCollision(x + moveX, y, map)) {
                 x += moveX;
@@ -73,13 +80,13 @@ public class Enemy {
         // --- ENEMY-TO-ENEMY AVOIDANCE ---
 
         // Prevent enemies from overlapping or pushing each other into walls
-        for (Enemy other : allEnemies) {
+        for (EnemyDrone other : allEnemies) {
             if (other == this) continue; // skip self
 
             // Distance between this enemy and the other
-            float d = (float)Math.sqrt(
-                    (x - other.x)*(x - other.x) +
-                            (y - other.y)*(y - other.y)
+            float d = (float) Math.sqrt(
+                    (x - other.x) * (x - other.x) +
+                            (y - other.y) * (y - other.y)
             );
 
             // If they are too close, push them apart slightly
@@ -98,11 +105,11 @@ public class Enemy {
                     y += oy;
                 }
             }
+            GameApp.updateAnimation("enemyDrone");
         }
     }
 
     public void render() {
-        // Draw the enemy as a small red circle
-        GameApp.drawCircle(x, y, 4, "red-600");
+        GameApp.drawAnimation("enemyDrone", x - 15, y - 20, 32f, 32f);
     }
 }

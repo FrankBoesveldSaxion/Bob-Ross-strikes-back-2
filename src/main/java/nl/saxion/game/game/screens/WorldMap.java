@@ -11,7 +11,7 @@ import nl.saxion.game.game.entities.Score;
 import nl.saxion.game.game.systems.EnemyConfig;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
-import nl.saxion.game.game.entities.Enemy;
+import nl.saxion.game.game.entities.EnemyDrone;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public class WorldMap extends ScalableGameScreen {
     private Score score;
 
     // Holds all enemies in the world
-    private final ArrayList<Enemy> enemies = new ArrayList<>();
+    private final ArrayList<EnemyDrone> enemies = new ArrayList<>();
 
     private OrthographicCamera camara;
 
@@ -37,23 +37,18 @@ public class WorldMap extends ScalableGameScreen {
         // Load the TMX tilemap
         tiledMap = new TmxMapLoader().load("maps/test/testMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        // Hide the collision layer so the player doesn't see it
+        tiledMap.getLayers().get("collision").setVisible(false);
 
         GameApp.addFont("cyberpunk", "fonts/Sefa.ttf", 75);
         GameApp.addTexture("scoreBoard", "textures/scoreBoard.png");
         GameApp.addFont("basicSmall", "fonts/basic.ttf", 50);
 
-
         camara = new OrthographicCamera();
         camara.setToOrtho(false, 320, 180);
 
-        // Hide the collision layer so the player doesn't see it
-        tiledMap.getLayers().get("collision").setVisible(false);
-
         // Create player at fixed position
         player = new Player(320, 160, tiledMap);
-        player.show();
-
-        score = new Score();
         /*
             Spawn enemies based on EnemyConfig settings.
             If RANDOM_SPAWN = true → spawn in random valid tiles.
@@ -61,8 +56,15 @@ public class WorldMap extends ScalableGameScreen {
         */
         for (int i = 0; i < EnemyConfig.ENEMY_COUNT; i++) {
             float[] pos = getRandomSpawn();
-            enemies.add(new Enemy(pos[0], pos[1], tiledMap, player));
+            enemies.add(new EnemyDrone(pos[0], pos[1], tiledMap, player));
         }
+
+        player.show();
+        for (EnemyDrone enemy : enemies) {
+            enemy.show();
+        }
+
+        score = new Score();
     }
 
     @Override
@@ -75,10 +77,8 @@ public class WorldMap extends ScalableGameScreen {
         // Update the player's movement
         player.update(delta);
         score.update(delta);
-
-        // Update each enemy and pass the full list for collision avoidance
-        for (Enemy enemy : enemies) {
-            enemy.update(delta, enemies);
+        for (EnemyDrone enemyDrone : enemies) {
+            enemyDrone.update(delta, enemies);
         }
 
         // Camera follows the player
@@ -92,14 +92,11 @@ public class WorldMap extends ScalableGameScreen {
         // Render player + enemies using shape renderer
         GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
 
-
         player.render();
-
         score.render();
 
-
-        for (Enemy enemy : enemies) {
-            enemy.render();
+        for (EnemyDrone enemyDrone : enemies) {
+            enemyDrone.render();
         }
 
         GameApp.endSpriteRendering();

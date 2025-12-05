@@ -20,10 +20,10 @@ public class Player {
 
     public void show() {
         SpriteConfig config = new SpriteConfig();
-        GameApp.addSpriteSheet("bobWalkLeft", "textures/animations/bobRossRunAnimationLeftRun.png", config.getFrameWidth(), config.getFrameHeight());
+        GameApp.addSpriteSheet("bobWalkLeft", "textures/animations/Player/bobRossRunAnimationLeftRun.png", config.getFrameWidth(), config.getFrameHeight());
         GameApp.addAnimationFromSpritesheet("bobWalkLeft", "bobWalkLeft", config.getFrameDuration(), true);
 
-        GameApp.addSpriteSheet("bobWalkRight", "textures/animations/bobRossRunAnimationRightRun.png", config.getFrameWidth(), config.getFrameHeight());
+        GameApp.addSpriteSheet("bobWalkRight", "textures/animations/Player/bobRossRunAnimationRightRun.png", config.getFrameWidth(), config.getFrameHeight());
         GameApp.addAnimationFromSpritesheet("bobWalkRight", "bobWalkRight", config.getFrameDuration(), true);
     }
 
