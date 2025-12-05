@@ -24,7 +24,7 @@ public class WorldMap extends ScalableGameScreen {
     private Score score;
 
     // Holds all enemies in the world
-    private ArrayList<Enemy> enemies = new ArrayList<>();
+    private final ArrayList<Enemy> enemies = new ArrayList<>();
 
     private OrthographicCamera camara;
 
@@ -51,6 +51,7 @@ public class WorldMap extends ScalableGameScreen {
 
         // Create player at fixed position
         player = new Player(320, 160, tiledMap);
+        player.show();
 
         score = new Score();
         /*
@@ -68,6 +69,8 @@ public class WorldMap extends ScalableGameScreen {
     public void render(float delta) {
         super.render(delta);
         GameApp.clearScreen();
+        GameApp.startShapeRenderingFilled();
+        GameApp.startSpriteRendering();
 
         // Update the player's movement
         player.update(delta);
@@ -87,23 +90,19 @@ public class WorldMap extends ScalableGameScreen {
         mapRenderer.render();
 
         // Render player + enemies using shape renderer
-        GameApp.startShapeRenderingFilled();
         GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
 
-        GameApp.startSpriteRendering();
 
         player.render();
 
         score.render();
 
-        GameApp.endSpriteRendering();
-
-        player.render();
 
         for (Enemy enemy : enemies) {
             enemy.render();
         }
 
+        GameApp.endSpriteRendering();
         GameApp.endShapeRendering();
     }
 
