@@ -70,13 +70,11 @@ public class Player {
     }
 
     public void render() {
-        GameApp.drawCircle(x, y, 4 , "blue-600");
-
         // draw animation based on the direction.
         if (currentDirection == 1) {
-            GameApp.drawAnimation("bobWalkLeft", x-25, y, 32f, 32f);
+            GameApp.drawAnimation("bobWalkLeft", x-15, y-5, 32f, 32f);
         } else {
-            GameApp.drawAnimation("bobWalkRight", x-7, y, 32f, 32f);
+            GameApp.drawAnimation("bobWalkRight", x-15, y-5, 32f, 32f);
         }
     }
 
