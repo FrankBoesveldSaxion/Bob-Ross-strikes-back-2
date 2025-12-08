@@ -27,7 +27,7 @@ public class Player {
         GameApp.addAnimationFromSpritesheet("bobWalkRight", "bobWalkRight", config.getFrameDuration(), true);
     }
 
-    public void update(float delta) {
+    public void render(float delta) {
         float newX = x;
         float newY = y;
         boolean isMoving = false;
@@ -51,7 +51,6 @@ public class Player {
             currentDirection = 2;
             isMoving = true;
         }
-
         // ONLY update animation if moving
         if (isMoving) {
             if (currentDirection == 1) {
@@ -59,20 +58,18 @@ public class Player {
             } else {
                 GameApp.updateAnimation("bobWalkRight");
             }
+        } else {
+            //TODO idle animation
+        }
+        if (currentDirection == 1) {
+            GameApp.drawAnimation("bobWalkLeft", x - 15, y - 5, 32f, 32f);
+        } else {
+            GameApp.drawAnimation("bobWalkRight", x - 15, y - 5, 32f, 32f);
         }
 
         if (!isCollision(newX, newY, map)) {
             x = newX;
             y = newY;
-        }
-    }
-
-    public void render() {
-        // draw animation based on the direction.
-        if (currentDirection == 1) {
-            GameApp.drawAnimation("bobWalkLeft", x - 15, y - 5, 32f, 32f);
-        } else {
-            GameApp.drawAnimation("bobWalkRight", x - 15, y - 5, 32f, 32f);
         }
     }
 

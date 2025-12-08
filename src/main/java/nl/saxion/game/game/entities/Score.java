@@ -11,23 +11,29 @@ public class Score {
 
     float timeSinceLastAdd = 0f;
 
-    public void update(float delta) {
-        // waits until 1 second has passed then update the score.
+    public void show() {
+        GameApp.addFont("cyberpunk", "fonts/Sefa.ttf", 75);
+        GameApp.addTexture("scoreBoard", "textures/scoreBoard.png");
+        GameApp.addFont("basicSmall", "fonts/basic.ttf", 50);
+
+        positionX = GameApp.getWindowWidth() + 250;
+        positionY = GameApp.getWindowHeight() + 150;
+    }
+
+    public void render(float delta) {
+
         timeSinceLastAdd += delta;
         if (timeSinceLastAdd >= 1f) {
             increaseScoreBy(1);
             timeSinceLastAdd -= 1f;
         }
-    }
 
-    public void render() {
-        GameApp.drawTexture("scoreBoard", positionX - 75, positionY - 75, 275, 200);
-        GameApp.setColor(Color.RED);
-        GameApp.drawRect(positionX, positionY, 100, 100);
+        int boardX = GameApp.getWindowWidth() + 200;
+        int boardY = GameApp.getWindowHeight() + 75;
 
-        GameApp.drawTextCentered("basicSmall", "Score:", positionX, positionY + 50, Color.CYAN);
-
-        GameApp.drawTextCentered("cyberpunk", String.valueOf(score), positionX + 100, positionY + 20, Color.CYAN);
+        GameApp.drawTexture("scoreBoard", boardX, boardY, 275, 200);
+        GameApp.drawTextCentered("basicSmall", "Score:", boardX + 90, boardY + 125, Color.CYAN);
+        GameApp.drawTextCentered("cyberpunk", String.valueOf(score), boardX + 140, boardY + 80, Color.CYAN);
     }
 
     public void increaseScoreBy(int increase) {

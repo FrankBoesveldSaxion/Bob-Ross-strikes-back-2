@@ -1,6 +1,5 @@
 package nl.saxion.game.game.entities;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import nl.saxion.game.game.systems.EnemyConfig;
 import nl.saxion.game.game.systems.SpriteConfig;
@@ -20,6 +19,7 @@ public class EnemyDrone {
 
     private final TiledMap map;
     private final Player player;
+    private int hp;
 
     public EnemyDrone(float startX, float startY, TiledMap map, Player player) {
         this.x = startX;
@@ -34,7 +34,9 @@ public class EnemyDrone {
         GameApp.addAnimationFromSpritesheet("enemyDrone", "enemyDrone", config.getFrameDuration(), true);
     }
 
-    public void update(float delta, ArrayList<EnemyDrone> allEnemies) {
+    public void render (float delta, ArrayList<EnemyDrone> allEnemies) {
+        GameApp.drawAnimation("enemyDrone", x - 15, y - 20, 32f, 32f);
+
         float targetX = player.getX();
         float targetY = player.getY();
 
@@ -107,9 +109,6 @@ public class EnemyDrone {
             }
             GameApp.updateAnimation("enemyDrone");
         }
-    }
 
-    public void render() {
-        GameApp.drawAnimation("enemyDrone", x - 15, y - 20, 32f, 32f);
     }
 }

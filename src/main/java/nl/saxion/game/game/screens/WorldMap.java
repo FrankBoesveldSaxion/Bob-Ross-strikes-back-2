@@ -1,5 +1,6 @@
 package nl.saxion.game.game.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -37,18 +38,20 @@ public class WorldMap extends ScalableGameScreen {
         // Load the TMX tilemap
         tiledMap = new TmxMapLoader().load("maps/test/testMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+
         // Hide the collision layer so the player doesn't see it
         tiledMap.getLayers().get("collision").setVisible(false);
 
-        GameApp.addFont("cyberpunk", "fonts/Sefa.ttf", 75);
-        GameApp.addTexture("scoreBoard", "textures/scoreBoard.png");
-        GameApp.addFont("basicSmall", "fonts/basic.ttf", 50);
+        player = new Player(320, 160, tiledMap);
+        player.show();
 
         camara = new OrthographicCamera();
         camara.setToOrtho(false, 320, 180);
 
+        score = new Score();
+        score.show();
+
         // Create player at fixed position
-        player = new Player(320, 160, tiledMap);
         /*
             Spawn enemies based on EnemyConfig settings.
             If RANDOM_SPAWN = true → spawn in random valid tiles.
@@ -58,28 +61,16 @@ public class WorldMap extends ScalableGameScreen {
             float[] pos = getRandomSpawn();
             enemies.add(new EnemyDrone(pos[0], pos[1], tiledMap, player));
         }
-
-        player.show();
         for (EnemyDrone enemy : enemies) {
             enemy.show();
         }
-
-        score = new Score();
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
         GameApp.clearScreen();
-        GameApp.startShapeRenderingFilled();
         GameApp.startSpriteRendering();
-
-        // Update the player's movement
-        player.update(delta);
-        score.update(delta);
-        for (EnemyDrone enemyDrone : enemies) {
-            enemyDrone.update(delta, enemies);
-        }
 
         // Camera follows the player
         camara.position.set(player.getX(), player.getY(), 0);
@@ -89,18 +80,20 @@ public class WorldMap extends ScalableGameScreen {
         mapRenderer.setView(camara);
         mapRenderer.render();
 
+        player.render(delta);
+
+        for (EnemyDrone enemyDrone : enemies) {
+            enemyDrone.render(delta, enemies);
+        }
+        GameApp.endSpriteRendering();
+
         // Render player + enemies using shape renderer
         GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
 
-        player.render();
-        score.render();
-
-        for (EnemyDrone enemyDrone : enemies) {
-            enemyDrone.render();
-        }
-
+        //This is by design so the score UI is on top.
+        GameApp.startSpriteRendering();
+        score.render(delta);
         GameApp.endSpriteRendering();
-        GameApp.endShapeRendering();
     }
 
     @Override
