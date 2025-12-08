@@ -8,7 +8,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.game.game.entities.Score;
-import nl.saxion.game.game.systems.EnemyConfig;
+import nl.saxion.game.game.systems.EnemyDroneConfig;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
 import nl.saxion.game.game.entities.EnemyDrone;
@@ -50,25 +50,24 @@ public class WorldMap extends ScalableGameScreen {
         score = new Score();
         score.show();
 
-        // Create player at fixed position
-        /*
-            Spawn enemies based on EnemyConfig settings.
-            If RANDOM_SPAWN = true → spawn in random valid tiles.
-            ENEMY_COUNT defines how many enemies are created.
-        */
-        for (int i = 0; i < EnemyConfig.ENEMY_COUNT; i++) {
+        // Spawn enemies
+        for (int i = 0; i < EnemyDroneConfig.ENEMY_COUNT; i++) {
             float[] pos = getRandomSpawn();
             enemies.add(new EnemyDrone(pos[0], pos[1], tiledMap, player));
         }
         for (EnemyDrone enemy : enemies) {
             enemy.show();
         }
+
+        // Give player reference to enemies for attack system
+        player.setEnemies(enemies);
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
         GameApp.clearScreen();
+        GameApp.startShapeRenderingFilled();
         GameApp.startSpriteRendering();
 
         // Camera follows the player
@@ -79,17 +78,28 @@ public class WorldMap extends ScalableGameScreen {
         mapRenderer.setView(camara);
         mapRenderer.render();
 
+        // Set projection for game world objects
+        GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
+
         player.render(delta);
+
+        // Remove dead enemies and render alive ones
+        enemies.removeIf(enemy -> {
+            if (enemy.isDead()) {
+                score.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
+                return true;
+            }
+            return false;
+        });
 
         for (EnemyDrone enemyDrone : enemies) {
             enemyDrone.render(delta, enemies);
         }
+
         GameApp.endSpriteRendering();
+        GameApp.endShapeRendering();
 
-        // Render player + enemies using shape renderer
-        GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
-
-        //This is by design so the score UI is on top.
+        // Render UI AFTER ending world rendering - uses screen coordinates
         GameApp.startSpriteRendering();
         score.render(delta);
         GameApp.endSpriteRendering();
@@ -101,14 +111,7 @@ public class WorldMap extends ScalableGameScreen {
         mapRenderer.dispose();
     }
 
-    /*
-        Picks a random tile inside the map that is NOT a wall.
-        It checks the "collision" layer:
-            - If the tile has no "blocked" property → it's walkable.
-            - Converts tile coordinates to world coordinates by multiplying by 16.
-    */
     private float[] getRandomSpawn() {
-
         TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("collision");
 
         if (layer == null) {
@@ -120,22 +123,15 @@ public class WorldMap extends ScalableGameScreen {
         int mapHeight = layer.getHeight();
 
         while (true) {
-            // Pick a random tile on the map
             int tileX = (int) GameApp.random(0, mapWidth - 1);
             int tileY = (int) GameApp.random(0, mapHeight - 1);
 
             TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
 
-            /*
-                Tile is valid IF:
-                    - It exists AND
-                    - It is not marked as "blocked"
-             */
             if (cell == null ||
                     cell.getTile() == null ||
                     !cell.getTile().getProperties().containsKey("blocked")) {
 
-                // Convert tile position → world position
                 float worldX = tileX * 16;
                 float worldY = tileY * 16;
 

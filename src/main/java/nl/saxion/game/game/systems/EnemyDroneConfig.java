@@ -1,6 +1,6 @@
 package nl.saxion.game.game.systems;
 
-public class EnemyConfig {
+public class EnemyDroneConfig {
 
     // How many enemies should spawn in the world?
     public static int ENEMY_COUNT = 5;
@@ -13,7 +13,8 @@ public class EnemyConfig {
 
     public static float PUSH_RADIUS = 5f;
 
-    public static int HP = 1;
+    public static int HEALTH = 1;
+    public static int SCORE_INCREASE_WHEN_DEAD = 10;
 
     /*
         If RANDOM_SPAWN = false,
