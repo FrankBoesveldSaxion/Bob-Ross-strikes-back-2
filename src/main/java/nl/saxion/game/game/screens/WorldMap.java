@@ -38,7 +38,7 @@ public class WorldMap extends ScalableGameScreen {
         tiledMap = new TmxMapLoader().load("maps/NewMap/DefenitiveMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
         // Hide the collision layer so the player doesn't see it
-        // tiledMap.getLayers().get("collision").setVisible(false);
+        tiledMap.getLayers().get("Collision").setVisible(false);
 
         GameApp.addFont("cyberpunk", "fonts/Sefa.ttf", 75);
         GameApp.addTexture("scoreBoard", "textures/scoreBoard.png");
