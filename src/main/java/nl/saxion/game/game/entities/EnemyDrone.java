@@ -14,12 +14,9 @@ public class EnemyDrone {
     private float x;
     private float y;
 
-    // The radius defines how close two enemies are allowed to be before pushing each other apart
-    public float radius = 5f;
 
     private final TiledMap map;
     private final Player player;
-    private int hp;
 
     public EnemyDrone(float startX, float startY, TiledMap map, Player player) {
         this.x = startX;
@@ -92,8 +89,8 @@ public class EnemyDrone {
             );
 
             // If they are too close, push them apart slightly
-            if (d < radius * 2) {
-                float overlap = (radius * 2) - d;
+            if (d < EnemyConfig.PUSH_RADIUS * 2) {
+                float overlap = (EnemyConfig.PUSH_RADIUS * 2) - d;
 
                 // Direction away from the other enemy
                 float ox = (x - other.x) / d * overlap * 0.5f;

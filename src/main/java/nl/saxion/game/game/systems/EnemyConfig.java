@@ -11,6 +11,10 @@ public class EnemyConfig {
     // If true, enemies spawn at random valid locations on the map
     public static boolean RANDOM_SPAWN = true;
 
+    public static float PUSH_RADIUS = 5f;
+
+    public static int HP = 1;
+
     /*
         If RANDOM_SPAWN = false,
         the spawner will use these coordinates instead.
