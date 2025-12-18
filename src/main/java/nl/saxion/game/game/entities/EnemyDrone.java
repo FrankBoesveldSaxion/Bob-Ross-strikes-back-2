@@ -14,25 +14,47 @@ public class EnemyDrone {
     private float x;
     private float y;
     private int health;
+    private boolean isDying = false; // Track death state
 
     private final TiledMap map;
     private final Player player;
+    private boolean isDead = false;
 
     public EnemyDrone(float startX, float startY, TiledMap map, Player player) {
         this.x = startX;
         this.y = startY;
         this.map = map;
         this.player = player;
-        this.health = EnemyDroneConfig.HEALTH; // Initialize from config
+        this.health = EnemyDroneConfig.HEALTH;
     }
 
     public void show() {
-        GameApp.addSpriteSheet("enemyDrone", "textures/animations/enemy/enemyDrone.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addSpriteSheet("enemyDrone", "textures/animations/droneEnemy/enemyDrone.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
         GameApp.addAnimationFromSpritesheet("enemyDrone", "enemyDrone", SpriteConfig.FRAME_DURATION, true);
+
+        GameApp.addSpriteSheet("droneDeath", "textures/animations/droneEnemy/deathSheet.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("droneDeath", "droneDeath", SpriteConfig.FRAME_DURATION, false);
     }
 
     public void render(float delta, ArrayList<EnemyDrone> allEnemies) {
-        GameApp.drawAnimation("enemyDrone", x - 15, y - 20, 32f, 32f);
+        // Check if drone should start dying
+        if (health <= 0 && !isDying) {
+            isDying = true;
+            GameApp.resetAnimation("droneDeath");
+        }
+
+        // Draw the appropriate animation based on state
+        if (isDying) {
+            GameApp.drawAnimation("droneDeath", x - 15, y - 20, 32f, 32f);
+            GameApp.updateAnimation("droneDeath");
+            if (GameApp.isAnimationFinished("droneDeath")){
+                isDead = true;
+            }
+            return;
+        } else {
+            GameApp.drawAnimation("enemyDrone", x - 15, y - 20, 32f, 32f);
+            GameApp.updateAnimation("enemyDrone");
+        }
 
         float targetX = player.getX();
         float targetY = player.getY();
@@ -81,17 +103,15 @@ public class EnemyDrone {
                     y += oy;
                 }
             }
-            GameApp.updateAnimation("enemyDrone");
         }
     }
 
-    // Health system methods - now uses instance variable
     public void takeDamage(int damage) {
-        health -= damage; // Modifies THIS enemy's health only
+        health -= damage;
     }
 
-    public boolean isDead() {
-        return health <= 0; // Checks THIS enemy's health only
+    public boolean isDead(){
+        return isDead;
     }
 
     public float getX() {

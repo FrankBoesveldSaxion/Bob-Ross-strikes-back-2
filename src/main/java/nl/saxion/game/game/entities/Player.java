@@ -98,17 +98,18 @@ public class Player {
         if (enemies == null) return;
 
         // Check all enemies and damage those in range
-        for (EnemyDrone enemy : enemies) {
-            float distance = calculateDistance(x, y, enemy.getX(), enemy.getY());
+        for (EnemyDrone enemyDrone : enemies) {
+            float distance = calculateDistance(x, y, enemyDrone.getX(), enemyDrone.getY());
 
             // Attack range in pixels
             float attackRange = SpriteConfig.ATTACK_RANGE;
             if (distance <= attackRange) {
-                enemy.takeDamage(1);
+                enemyDrone.takeDamage(1);
             }
         }
     }
 
+    //calculates distance from plater to X adn Y 2;
     private float calculateDistance(float x1, float y1, float x2, float y2) {
         float dx = x2 - x1;
         float dy = y2 - y1;

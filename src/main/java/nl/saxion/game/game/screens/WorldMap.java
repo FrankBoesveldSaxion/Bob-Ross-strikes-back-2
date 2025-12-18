@@ -83,17 +83,18 @@ public class WorldMap extends ScalableGameScreen {
 
         player.render(delta);
 
-        // Remove dead enemies and render alive ones
-        enemies.removeIf(enemy -> {
-            if (enemy.isDead()) {
-                score.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
-                return true;
-            }
-            return false;
-        });
 
+        // Render all enemies first
         for (EnemyDrone enemyDrone : enemies) {
             enemyDrone.render(delta, enemies);
+        }
+
+        // Remove dead enemies AFTER rendering is complete
+        for (int i = enemies.size() - 1; i >= 0; i--) {
+            if (enemies.get(i).isDead()) {
+                enemies.remove(i);
+                score.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
+            }
         }
 
         GameApp.endSpriteRendering();
