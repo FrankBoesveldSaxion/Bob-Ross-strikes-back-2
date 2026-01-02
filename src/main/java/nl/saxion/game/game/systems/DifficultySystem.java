@@ -21,7 +21,13 @@ public class DifficultySystem {
             Score score
     ) {
         // every 1 enemy based on de config.
-        if (time.getTime() % EnemyDroneConfig.ENEMY_SPAWN_PER_SECOND == 0) {
+        int enemyDroneSpawnPerSecond = EnemyDroneConfig.ENEMY_SPAWN_PER_SECOND;
+        // increase difficulty after 25 seconds of playing.
+        if (time.getTime() == 25){
+            enemyDroneSpawnPerSecond = EnemyDroneConfig.ENEMY_SPAWN_PER_SECOND / 2;
+        }
+
+        if (time.getTime() % enemyDroneSpawnPerSecond == 0) {
             if (!spawnedOnce) {
                 spawnedOnce = true; // prevents more than 1 spawn
 

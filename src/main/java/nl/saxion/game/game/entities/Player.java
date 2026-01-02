@@ -17,6 +17,8 @@ public class Player {
     private boolean spaceWasPressed = false; // Prevent holding space
     private ArrayList<EnemyDrone> enemies; // Reference to enemies list
 
+    private float attackCooldown = 0f; // time left until next attack
+
     public Player(float startX, float startY, TiledMap map) {
         this.x = startX;
         this.y = startY;
@@ -40,6 +42,11 @@ public class Player {
         float newY = y;
         boolean isMoving = false;
 
+        // Reduce attack cooldown every frame
+        if (attackCooldown > 0f){
+            attackCooldown -= delta;
+        }
+
         float speed = 100;
         if (GameApp.isKeyPressed(51)) {
             newY += speed * delta; // W
@@ -60,10 +67,10 @@ public class Player {
             isMoving = true;
         }
 
-        // Handle attack with single press detection
         if (GameApp.isKeyPressed(62)) { // Space key
-            if (!spaceWasPressed) {
+            if (!spaceWasPressed && attackCooldown <= 0f) {
                 mainAttack();
+                attackCooldown = SpriteConfig.ATTACK_MAIN_COOLDOWN_TIME; // reset cooldown
                 spaceWasPressed = true;
             }
         } else {
