@@ -20,7 +20,7 @@ public class Score {
         positionY = GameApp.getWindowHeight() + 150;
     }
 
-    public void render(float delta) {
+    public void render(float delta, float rightWith) {
 
         timeSinceLastAdd += delta;
         if (timeSinceLastAdd >= 1f) {
@@ -28,12 +28,11 @@ public class Score {
             timeSinceLastAdd -= 1f;
         }
 
-        int boardX = GameApp.getWindowWidth() + 200;
         int boardY = GameApp.getWindowHeight() + 75;
 
-        GameApp.drawTexture("scoreBoard", boardX, boardY, 275, 200);
-        GameApp.drawTextCentered("basicSmall", "Score:", boardX + 90, boardY + 125, Color.CYAN);
-        GameApp.drawTextCentered("cyberpunk", String.valueOf(score), boardX + 140, boardY + 80, Color.CYAN);
+        GameApp.drawTexture("scoreBoard", rightWith - 15, boardY, 275, 200);
+        GameApp.drawTextCentered("basicSmall", "Score:", rightWith + 90, boardY + 125, Color.CYAN);
+        GameApp.drawTextCentered("cyberpunk", String.valueOf(score), rightWith + 140, boardY + 80, Color.CYAN);
     }
 
     public void increaseScoreBy(int increase) {

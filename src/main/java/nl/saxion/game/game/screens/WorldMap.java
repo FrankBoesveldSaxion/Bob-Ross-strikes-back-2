@@ -1,5 +1,6 @@
 package nl.saxion.game.game.screens;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -54,6 +55,8 @@ public class WorldMap extends ScalableGameScreen {
 
         score = new Score();
         score.show();
+
+        GameApp.addFont("cooldown", "fonts/Sefa.ttf", 50);
     }
 
     @Override
@@ -87,16 +90,33 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.endSpriteRendering();
         GameApp.endShapeRendering();
 
-        GameApp.startSpriteRendering();
-        score.render(delta);
-        GameApp.endSpriteRendering();
+        drawUI(delta);
     }
-
 
     @Override
     public void hide() {
         tiledMap.dispose();
         mapRenderer.dispose();
+    }
+
+    public void drawUI(float delta) {
+
+        // Correct virtual resolution from ScalableGameScreen
+        float virtualWidth = getViewport().getWorldWidth();
+        float virtualHeight = getViewport().getWorldHeight();
+
+        float rightWith = virtualWidth - 275;
+
+        GameApp.startSpriteRendering();
+        score.render(delta, rightWith);
+
+        // Draw attack ready text
+        if (player.canAttack()) {
+            String msg = "Attack is ready!";
+
+            GameApp.drawText("cooldown", msg, rightWith, virtualHeight - 200, Color.RED);
+        }
+        GameApp.endSpriteRendering();
     }
 
 }

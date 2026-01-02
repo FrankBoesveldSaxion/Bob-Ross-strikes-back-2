@@ -40,10 +40,11 @@ public class Player {
     public void render(float delta) {
         float newX = x;
         float newY = y;
+
         boolean isMoving = false;
 
         // Reduce attack cooldown every frame
-        if (attackCooldown > 0f){
+        if (attackCooldown > 0f) {
             attackCooldown -= delta;
         }
 
@@ -122,6 +123,11 @@ public class Player {
         float dy = y2 - y1;
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
+
+    public boolean canAttack() {
+        return attackCooldown <= 0f;
+    }
+
 
     public float getX() {
         return x;
