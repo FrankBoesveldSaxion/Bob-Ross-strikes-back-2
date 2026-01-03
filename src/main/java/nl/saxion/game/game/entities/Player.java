@@ -88,9 +88,6 @@ public class Player {
             if (wasMoving) {
                 currentAnimation = (currentDirection == 1) ? "bobStopRunLeft" : "bobStopRunRight";
                 GameApp.updateAnimation(currentAnimation);
-            } else {
-                // Idle animatie (als je die hebt)
-                // currentAnimation = ...
             }
             GameApp.drawAnimation(currentAnimation, x - 15, y - 5, 32f, 32f);
 
