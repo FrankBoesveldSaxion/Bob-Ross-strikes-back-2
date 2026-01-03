@@ -33,6 +33,8 @@ public class Player {
 
         GameApp.addSpriteSheet("bobWalkRight", "textures/animations/Player/bobRossRunAnimationRightRun.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
         GameApp.addAnimationFromSpritesheet("bobWalkRight", "bobWalkRight", SpriteConfig.FRAME_DURATION, true);
+
+        GameApp.addSpriteSheet("Bob");
     }
 
     public void render(float delta) {
