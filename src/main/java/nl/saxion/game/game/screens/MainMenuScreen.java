@@ -20,7 +20,7 @@ public class MainMenuScreen extends ScalableGameScreen {
 
         // When the user presses enter, go to the next screen
         if (GameApp.isKeyJustPressed(Input.Keys.ENTER)) {
-            GameApp.switchScreen("WorldScreen");
+            GameApp.switchScreen("WorldMap");
         }
 
         // Render the main menu

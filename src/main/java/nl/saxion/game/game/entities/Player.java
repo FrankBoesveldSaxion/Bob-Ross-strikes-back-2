@@ -14,7 +14,9 @@ public class Player {
     private float y;
     private final TiledMap map;
     private int currentDirection = 2; // 1=left, 2=right
+    private String currentAnimation = "bobRunRight";
     private boolean spaceWasPressed = false; // Prevent holding space
+    private boolean wasMoving = false;
     private ArrayList<EnemyDrone> enemies; // Reference to enemies list
 
     public Player(float startX, float startY, TiledMap map) {
@@ -34,9 +36,13 @@ public class Player {
         GameApp.addSpriteSheet("bobWalkRight", "textures/animations/Player/bobRossRunAnimationRightRun.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
         GameApp.addAnimationFromSpritesheet("bobWalkRight", "bobWalkRight", SpriteConfig.FRAME_DURATION, true);
 
-        GameApp.addSpriteSheet("Bob");
-    }
+        GameApp.addSpriteSheet("bobStopRunLeft", "textures/animations/Player/BobRossRunToBaseLeft.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobStopRunLeft", "bobStopRunLeft", SpriteConfig.FRAME_DURATION, false);
 
+        GameApp.addSpriteSheet("bobStopRunRight", "textures/animations/Player/BobRossRunToBaseRight.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobStopRunRight", "bobStopRunRight", SpriteConfig.FRAME_DURATION, false);
+        // GameApp.addSpriteSheet("Bob");
+    }
     public void render(float delta) {
         float newX = x;
         float newY = y;
@@ -74,13 +80,21 @@ public class Player {
 
         // ONLY update animation if moving
         if (isMoving) {
-            if (currentDirection == 1) {
-                GameApp.updateAnimation("bobWalkLeft");
-            } else {
-                GameApp.updateAnimation("bobWalkRight");
-            }
+            // RUN ANIMATIE
+            currentAnimation = (currentDirection == 1) ? "bobWalkLeft" : "bobWalkRight";
+            GameApp.updateAnimation(currentAnimation);
         } else {
-            //TODO idle animation
+            // HIJ STOPTE NET MET RENNEN
+            if (wasMoving) {
+                currentAnimation = (currentDirection == 1) ? "bobStopRunLeft" : "bobStopRunRight";
+                GameApp.updateAnimation(currentAnimation);
+            } else {
+                // Idle animatie (als je die hebt)
+                // currentAnimation = ...
+            }
+            GameApp.drawAnimation(currentAnimation, x - 15, y - 5, 32f, 32f);
+
+            wasMoving = isMoving;
         }
 
         // ALWAYS draw the animation
@@ -89,6 +103,7 @@ public class Player {
         } else {
             GameApp.drawAnimation("bobWalkRight", x - 15, y - 5, 32f, 32f);
         }
+        GameApp.drawAnimation(currentAnimation, x - 15, y - 5, 32f, 32f);
 
         if (!isCollision(newX, newY, map)) {
             x = newX;
