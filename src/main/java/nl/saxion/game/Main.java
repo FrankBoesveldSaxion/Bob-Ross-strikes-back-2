@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
         // Add screens
         GameApp.addScreen("MainMenuScreen", new MainMenuScreen());
-        GameApp.addScreen("WorldScreen", new WorldMap());
+        GameApp.addScreen("WorldMap", new WorldMap());
 
 
         // Start game loop and show main menu screen
