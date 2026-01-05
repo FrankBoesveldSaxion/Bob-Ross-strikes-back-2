@@ -14,9 +14,7 @@ public class Player {
     private float y;
     private final TiledMap map;
     private int currentDirection = 2; // 1=left, 2=right
-    private String currentAnimation = "bobWalkLeft";
     private boolean spaceWasPressed = false; // Prevent holding space
-    private boolean wasMoving = false;
     private ArrayList<EnemyDrone> enemies; // Reference to enemies list
 
     public Player(float startX, float startY, TiledMap map) {
@@ -43,7 +41,13 @@ public class Player {
         GameApp.addAnimationFromSpritesheet("bobStopRunRight", "bobStopRunRight", SpriteConfig.FRAME_DURATION, false);
         // GameApp.addSpriteSheet("Bob");
     }
+
     public void render(float delta) {
+        // keeps track
+        String currentAnimation;
+
+        // needs to reload / reset the animation or like called = true call the animation from the beginning.
+
         float newX = x;
         float newY = y;
         boolean isMoving = false;
@@ -85,13 +89,9 @@ public class Player {
             GameApp.updateAnimation(currentAnimation);
         } else {
             // HIJ STOPTE NET MET RENNEN
-            if (wasMoving) {
-                currentAnimation = (currentDirection == 1) ? "bobStopRunLeft" : "bobStopRunRight";
-                GameApp.updateAnimation(currentAnimation);
-            }
+            currentAnimation = (currentDirection == 1) ? "bobStopRunLeft" : "bobStopRunRight";
+            GameApp.updateAnimation(currentAnimation);
             GameApp.drawAnimation(currentAnimation, x - 15, y - 5, 32f, 32f);
-
-            wasMoving = isMoving;
         }
 
         // ALWAYS draw the animation
