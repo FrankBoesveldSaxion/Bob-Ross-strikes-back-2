@@ -14,7 +14,7 @@ public class Player {
     private float y;
     private final TiledMap map;
     private int currentDirection = 2; // 1=left, 2=right
-    private String currentAnimation = "bobRunRight";
+    private String currentAnimation = "bobWalkLeft";
     private boolean spaceWasPressed = false; // Prevent holding space
     private boolean wasMoving = false;
     private ArrayList<EnemyDrone> enemies; // Reference to enemies list
