@@ -8,6 +8,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.game.game.entities.Score;
 import nl.saxion.game.game.systems.DifficultySystem;
+import nl.saxion.game.game.systems.EnemyDroneConfig;
+import nl.saxion.game.game.systems.GameState;
 import nl.saxion.game.game.systems.TimerSystem;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
@@ -37,15 +39,19 @@ public class WorldMap extends ScalableGameScreen {
 
     @Override
     public void show() {
+        // Reset enemy and score.
+        enemies.clear();
+        GameState.reset();
+
         // Load the TMX tilemap
-        tiledMap = new TmxMapLoader().load("maps/test/testMap.tmx");
+        tiledMap = new TmxMapLoader().load("maps/NewMap/DefenitiveMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
         difficulty = new DifficultySystem();
         timerSystem = new TimerSystem();
         timerSystem.initTimer();
 
         // Hide the collision layer so the player doesn't see it
-        tiledMap.getLayers().get("collision").setVisible(false);
+        tiledMap.getLayers().get("Collision").setVisible(false);
 
         player = new Player(320, 160, tiledMap);
         player.show();
@@ -61,10 +67,24 @@ public class WorldMap extends ScalableGameScreen {
 
     @Override
     public void render(float delta) {
+        for (EnemyDrone enemyDrone : enemies) {
+            float dx = enemyDrone.getX() - player.getX();
+            float dy = enemyDrone.getY() - player.getY();
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < EnemyDroneConfig.PLAYER_DEATH_DISTANCE) {
+                System.out.println("PLAYER DIED!");
+
+                GameApp.switchScreen("GameOverScreen");
+                return; // stop rendering this frame
+            }
+        }
+
         super.render(delta);
         GameApp.clearScreen();
         GameApp.startShapeRenderingFilled();
         GameApp.startSpriteRendering();
+        GameState.updateScore(delta);
 
         timerSystem.timerLogic(delta);
 
