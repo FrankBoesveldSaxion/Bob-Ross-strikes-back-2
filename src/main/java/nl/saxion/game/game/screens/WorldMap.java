@@ -1,14 +1,14 @@
 package nl.saxion.game.game.screens;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.game.game.entities.Score;
-import nl.saxion.game.game.systems.EnemyDroneConfig;
+import nl.saxion.game.game.systems.DifficultySystem;
+import nl.saxion.game.game.systems.TimerSystem;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
 import nl.saxion.game.game.entities.EnemyDrone;
@@ -22,6 +22,9 @@ public class WorldMap extends ScalableGameScreen {
 
     private Player player;
     private Score score;
+    private DifficultySystem difficulty;
+    private TimerSystem timerSystem;
+
 
     // Holds all enemies in the world
     private final ArrayList<EnemyDrone> enemies = new ArrayList<>();
@@ -37,6 +40,9 @@ public class WorldMap extends ScalableGameScreen {
         // Load the TMX tilemap
         tiledMap = new TmxMapLoader().load("maps/test/testMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        difficulty = new DifficultySystem();
+        timerSystem = new TimerSystem();
+        timerSystem.initTimer();
 
         // Hide the collision layer so the player doesn't see it
         tiledMap.getLayers().get("collision").setVisible(false);
@@ -50,17 +56,7 @@ public class WorldMap extends ScalableGameScreen {
         score = new Score();
         score.show();
 
-        // Spawn enemies
-        for (int i = 0; i < EnemyDroneConfig.ENEMY_COUNT; i++) {
-            float[] pos = getRandomSpawn();
-            enemies.add(new EnemyDrone(pos[0], pos[1], tiledMap, player));
-        }
-        for (EnemyDrone enemy : enemies) {
-            enemy.show();
-        }
-
-        // Give player reference to enemies for attack system
-        player.setEnemies(enemies);
+        GameApp.addFont("cooldown", "fonts/Sefa.ttf", 50);
     }
 
     @Override
@@ -70,40 +66,31 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.startShapeRenderingFilled();
         GameApp.startSpriteRendering();
 
-        // Camera follows the player
+        timerSystem.timerLogic(delta);
+
         camara.position.set(player.getX(), player.getY(), 0);
         camara.update();
 
-        // Render the map using the camera
         mapRenderer.setView(camara);
         mapRenderer.render();
 
-        // Set projection for game world objects
         GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
 
         player.render(delta);
 
-
-        // Render all enemies first
-        for (EnemyDrone enemyDrone : enemies) {
-            enemyDrone.render(delta, enemies);
-        }
-
-        // Remove dead enemies AFTER rendering is complete
-        for (int i = enemies.size() - 1; i >= 0; i--) {
-            if (enemies.get(i).isDead()) {
-                enemies.remove(i);
-                score.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
-            }
-        }
+        difficulty.spawnEnemiesBasedOnScore(
+                delta,
+                timerSystem,
+                tiledMap,
+                player,
+                enemies,
+                score
+        );
 
         GameApp.endSpriteRendering();
         GameApp.endShapeRendering();
 
-        // Render UI AFTER ending world rendering - uses screen coordinates
-        GameApp.startSpriteRendering();
-        score.render(delta);
-        GameApp.endSpriteRendering();
+        drawUI(delta);
     }
 
     @Override
@@ -112,32 +99,26 @@ public class WorldMap extends ScalableGameScreen {
         mapRenderer.dispose();
     }
 
-    private float[] getRandomSpawn() {
-        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("collision");
+    public void drawUI(float delta) {
 
-        if (layer == null) {
-            System.out.println("ERROR: collision layer not found!");
-            return new float[]{0, 0};
+        // Correct virtual resolution from ScalableGameScreen
+        float virtualWidth = getViewport().getWorldWidth();
+        float virtualHeight = getViewport().getWorldHeight();
+
+        float rightWith = virtualWidth - 275;
+
+        GameApp.startSpriteRendering();
+        score.render(delta, rightWith);
+
+        // Draw attack ready text
+        if (player.canAttack()) {
+            // balk die toeneemt.
+            // stamina. 
+            String msg = "Attack is ready!";
+
+            GameApp.drawText("cooldown", msg, rightWith, virtualHeight - 200, Color.RED);
         }
-
-        int mapWidth = layer.getWidth();
-        int mapHeight = layer.getHeight();
-
-        while (true) {
-            int tileX = (int) GameApp.random(0, mapWidth - 1);
-            int tileY = (int) GameApp.random(0, mapHeight - 1);
-
-            TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
-
-            if (cell == null ||
-                    cell.getTile() == null ||
-                    !cell.getTile().getProperties().containsKey("blocked")) {
-
-                float worldX = tileX * 16;
-                float worldY = tileY * 16;
-
-                return new float[]{worldX, worldY};
-            }
-        }
+        GameApp.endSpriteRendering();
     }
+
 }
