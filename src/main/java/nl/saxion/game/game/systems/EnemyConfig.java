@@ -11,6 +11,12 @@ public class EnemyConfig {
     // If true, enemies spawn at random valid locations on the map
     public static boolean RANDOM_SPAWN = true;
 
+    // Minimum distance enemies must spawn away from the player
+    public static float MIN_SPAWN_DISTANCE_FROM_PLAYER = 120f;
+
+    // How close an enemy can get before the player dies
+    public static float PLAYER_DEATH_DISTANCE = 10f;
+
     /*
         If RANDOM_SPAWN = false,
         the spawner will use these coordinates instead.

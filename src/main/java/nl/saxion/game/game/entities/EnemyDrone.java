@@ -15,6 +15,9 @@ public class EnemyDrone {
     private float x;
     private float y;
 
+    public float getX() { return x; }
+    public float getY() { return y; }
+
     // The radius defines how close two enemies are allowed to be before pushing each other apart
     public float radius = 5f;
 

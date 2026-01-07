@@ -9,6 +9,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.game.game.entities.Score;
 import nl.saxion.game.game.systems.EnemyConfig;
+import nl.saxion.game.game.systems.GameState;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
 import nl.saxion.game.game.entities.EnemyDrone;
@@ -21,7 +22,6 @@ public class WorldMap extends ScalableGameScreen {
     private OrthogonalTiledMapRenderer mapRenderer;
 
     private Player player;
-    private Score score;
 
     // Holds all enemies in the world
     private final ArrayList<EnemyDrone> enemies = new ArrayList<>();
@@ -34,6 +34,8 @@ public class WorldMap extends ScalableGameScreen {
 
     @Override
     public void show() {
+        enemies.clear();
+        GameState.reset();
         // Load the TMX tilemap
         tiledMap = new TmxMapLoader().load("maps/test/testMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
@@ -64,11 +66,24 @@ public class WorldMap extends ScalableGameScreen {
             enemy.show();
         }
 
-        score = new Score();
     }
 
     @Override
     public void render(float delta) {
+//        System.out.println(score.getScore());
+        for (EnemyDrone enemyDrone : enemies) {
+            float dx = enemyDrone.getX() - player.getX();
+            float dy = enemyDrone.getY() - player.getY();
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < EnemyConfig.PLAYER_DEATH_DISTANCE) {
+                System.out.println("PLAYER DIED!");
+
+
+                GameApp.switchScreen("GameOverScreen");
+                return; // stop rendering this frame
+            }
+        }
         super.render(delta);
         GameApp.clearScreen();
         GameApp.startShapeRenderingFilled();
@@ -76,7 +91,10 @@ public class WorldMap extends ScalableGameScreen {
 
         // Update the player's movement
         player.update(delta);
-        score.update(delta);
+        GameState.updateScore(delta);
+
+        System.out.println(GameState.score);
+
         for (EnemyDrone enemyDrone : enemies) {
             enemyDrone.update(delta, enemies);
         }
@@ -93,7 +111,6 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
 
         player.render();
-        score.render();
 
         for (EnemyDrone enemyDrone : enemies) {
             enemyDrone.render();
@@ -128,27 +145,27 @@ public class WorldMap extends ScalableGameScreen {
         int mapHeight = layer.getHeight();
 
         while (true) {
-            // Pick a random tile on the map
             int tileX = (int) GameApp.random(0, mapWidth - 1);
             int tileY = (int) GameApp.random(0, mapHeight - 1);
 
             TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
 
-            /*
-                Tile is valid IF:
-                    - It exists AND
-                    - It is not marked as "blocked"
-             */
-            if (cell == null ||
-                    cell.getTile() == null ||
-                    !cell.getTile().getProperties().containsKey("blocked")) {
+            // Skip tiles that are walls
+            if (cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey("blocked"))
+                continue;
 
-                // Convert tile position → world position
-                float worldX = tileX * 16;
-                float worldY = tileY * 16;
+            float worldX = tileX * 16;
+            float worldY = tileY * 16;
 
-                return new float[]{worldX, worldY};
-            }
+            // Check distance from player → must not be too close
+            float dx = worldX - player.getX();
+            float dy = worldY - player.getY();
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < EnemyConfig.MIN_SPAWN_DISTANCE_FROM_PLAYER)
+                continue; // too close → try again
+
+            return new float[]{worldX, worldY};
         }
     }
 }
