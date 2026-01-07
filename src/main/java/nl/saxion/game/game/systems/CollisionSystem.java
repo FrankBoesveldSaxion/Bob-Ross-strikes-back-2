@@ -6,7 +6,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 public class CollisionSystem {
 
     static public boolean isCollision(float x, float y, TiledMap map) {
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("collision");
+        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Collision");
 
         if (layer == null) {
             System.out.println("ERROR: collision layer not found! check for a typo");
