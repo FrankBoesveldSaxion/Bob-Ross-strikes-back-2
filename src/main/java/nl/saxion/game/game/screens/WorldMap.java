@@ -112,6 +112,8 @@ public class WorldMap extends ScalableGameScreen {
 
         // Draw attack ready text
         if (player.canAttack()) {
+            // balk die toeneemt.
+            // stamina. 
             String msg = "Attack is ready!";
 
             GameApp.drawText("cooldown", msg, rightWith, virtualHeight - 200, Color.RED);
