@@ -1,8 +1,7 @@
 package nl.saxion.game.game.entities;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import nl.saxion.game.game.systems.EnemyConfig;
+import nl.saxion.game.game.systems.EnemyDroneConfig;
 import nl.saxion.game.game.systems.SpriteConfig;
 import nl.saxion.gameapp.GameApp;
 
@@ -14,93 +13,89 @@ public class EnemyDrone {
 
     private float x;
     private float y;
-
-    public float getX() { return x; }
-    public float getY() { return y; }
-
-    // The radius defines how close two enemies are allowed to be before pushing each other apart
-    public float radius = 5f;
+    private int health;
+    private boolean isDying = false; // Track death state
 
     private final TiledMap map;
     private final Player player;
+    private boolean isDead = false;
 
     public EnemyDrone(float startX, float startY, TiledMap map, Player player) {
         this.x = startX;
         this.y = startY;
         this.map = map;
         this.player = player;
+        this.health = EnemyDroneConfig.HEALTH;
     }
 
     public void show() {
-        SpriteConfig config = new SpriteConfig();
-        GameApp.addSpriteSheet("enemyDrone", "textures/animations/enemy/enemyDrone.png", config.getFrameWidth(), config.getFrameHeight());
-        GameApp.addAnimationFromSpritesheet("enemyDrone", "enemyDrone", config.getFrameDuration(), true);
+        GameApp.addSpriteSheet("enemyDrone", "textures/animations/droneEnemy/enemyDrone.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("enemyDrone", "enemyDrone", SpriteConfig.FRAME_DURATION, true);
+
+        GameApp.addSpriteSheet("droneDeath", "textures/animations/droneEnemy/deathSheet.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("droneDeath", "droneDeath", SpriteConfig.FRAME_DURATION, false);
     }
 
-    public void update(float delta, ArrayList<EnemyDrone> allEnemies) {
+    public void render(float delta, ArrayList<EnemyDrone> allEnemies) {
+        // Check if drone should start dying
+        if (health <= 0 && !isDying) {
+            isDying = true;
+            GameApp.resetAnimation("droneDeath");
+        }
+
+        // Draw the appropriate animation based on state
+        if (isDying) {
+            GameApp.drawAnimation("droneDeath", x - 15, y - 20, 32f, 32f);
+            GameApp.updateAnimation("droneDeath");
+            if (GameApp.isAnimationFinished("droneDeath")){
+                isDead = true;
+            }
+            return;
+        } else {
+            GameApp.drawAnimation("enemyDrone", x - 15, y - 20, 32f, 32f);
+            GameApp.updateAnimation("enemyDrone");
+        }
+
         float targetX = player.getX();
         float targetY = player.getY();
 
-        // Direction vector from enemy to player
         float dx = targetX - x;
         float dy = targetY - y;
-
-        // Distance to player
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        // Stop if extremely close to the player (prevents jittering)
         if (dist < 0.5f) return;
 
-        // Calculate movement speed for this frame
-        float speed = EnemyConfig.ENEMY_SPEED * delta;
-
-        // Normalize direction (length = 1)
+        float speed = EnemyDroneConfig.ENEMY_SPEED * delta;
         float normX = dx / dist;
         float normY = dy / dist;
-
-        // The intended movement this frame
         float moveX = normX * speed;
         float moveY = normY * speed;
 
-        // --- WALL AVOIDANCE AND SLIDING BEHAVIOR ---
-
-        // 1. Try full movement (diagonal movement toward the player)
         if (!isCollision(x + moveX, y + moveY, map)) {
             x += moveX;
             y += moveY;
         } else {
-            // 2. If full movement is blocked, try moving only horizontally
             if (!isCollision(x + moveX, y, map)) {
                 x += moveX;
             }
-            // 3. If that fails, try only vertical movement
             if (!isCollision(x, y + moveY, map)) {
                 y += moveY;
             }
-            // This results in enemies "sliding" along walls rather than getting stuck
         }
 
-        // --- ENEMY-TO-ENEMY AVOIDANCE ---
-
-        // Prevent enemies from overlapping or pushing each other into walls
         for (EnemyDrone other : allEnemies) {
-            if (other == this) continue; // skip self
+            if (other == this) continue;
 
-            // Distance between this enemy and the other
             float d = (float) Math.sqrt(
                     (x - other.x) * (x - other.x) +
                             (y - other.y) * (y - other.y)
             );
 
-            // If they are too close, push them apart slightly
-            if (d < radius * 2) {
-                float overlap = (radius * 2) - d;
-
-                // Direction away from the other enemy
+            if (d < EnemyDroneConfig.PUSH_RADIUS * 2) {
+                float overlap = (EnemyDroneConfig.PUSH_RADIUS * 2) - d;
                 float ox = (x - other.x) / d * overlap * 0.5f;
                 float oy = (y - other.y) / d * overlap * 0.5f;
 
-                // Only apply the push if it does NOT push the enemy into a wall
                 if (!isCollision(x + ox, y, map)) {
                     x += ox;
                 }
@@ -108,11 +103,22 @@ public class EnemyDrone {
                     y += oy;
                 }
             }
-            GameApp.updateAnimation("enemyDrone");
         }
     }
 
-    public void render() {
-        GameApp.drawAnimation("enemyDrone", x - 15, y - 20, 32f, 32f);
+    public void takeDamage(int damage) {
+        health -= damage;
+    }
+
+    public boolean isDead(){
+        return isDead;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
     }
 }

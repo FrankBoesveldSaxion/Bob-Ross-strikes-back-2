@@ -51,7 +51,7 @@ public class MainMenuScreen extends ScalableGameScreen {
         if (GameApp.isKeyJustPressed(Input.Keys.ENTER)) {
             if (selectedIndex == 0) {
                 // Start Game
-                GameApp.switchScreen("WorldScreen");
+                GameApp.switchScreen("WorldMap");
             }
             else if (selectedIndex == 1) {
                 // Quit Game

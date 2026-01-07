@@ -13,7 +13,7 @@ public class Main {
         // Add screens
 
         GameApp.addScreen("MainMenuScreen", new MainMenuScreen());
-        GameApp.addScreen("WorldScreen", new WorldMap());
+        GameApp.addScreen("WorldMap", new WorldMap());
         GameApp.addScreen("GameOverScreen", new GameOverScreen());
 
 

@@ -1,19 +1,14 @@
 package nl.saxion.game.game.systems;
 
 public class SpriteConfig {
-    int frameWidth = 32;
-    int frameHeight = 32;
-    float frameDuration = 0.08f;
+    public static int FRAME_WIDTH = 32;
 
-    public int getFrameWidth() {
-        return frameWidth;
-    }
+    public static int FRAME_HEIGHT = 32;
 
-    public int getFrameHeight() {
-        return frameHeight;
-    }
+    public static float FRAME_DURATION = 0.08f;
 
-    public float getFrameDuration() {
-        return frameDuration;
-    }
+    public static float ATTACK_RANGE = 50f;
+
+    public static float ATTACK_MAIN_COOLDOWN_TIME = 2f; // 2 second
+
 }

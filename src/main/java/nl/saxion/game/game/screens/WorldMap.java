@@ -1,15 +1,14 @@
 package nl.saxion.game.game.screens;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.game.game.entities.Score;
-import nl.saxion.game.game.systems.EnemyConfig;
-import nl.saxion.game.game.systems.GameState;
+import nl.saxion.game.game.systems.DifficultySystem;
+import nl.saxion.game.game.systems.TimerSystem;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
 import nl.saxion.game.game.entities.EnemyDrone;
@@ -22,6 +21,10 @@ public class WorldMap extends ScalableGameScreen {
     private OrthogonalTiledMapRenderer mapRenderer;
 
     private Player player;
+    private Score score;
+    private DifficultySystem difficulty;
+    private TimerSystem timerSystem;
+
 
     // Holds all enemies in the world
     private final ArrayList<EnemyDrone> enemies = new ArrayList<>();
@@ -34,90 +37,60 @@ public class WorldMap extends ScalableGameScreen {
 
     @Override
     public void show() {
-        enemies.clear();
-        GameState.reset();
         // Load the TMX tilemap
-        tiledMap = new TmxMapLoader().load("maps/NewMap/DefenitiveMap.tmx");
+        tiledMap = new TmxMapLoader().load("maps/test/testMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-        // Hide the collision layer so the player doesn't see it
-        tiledMap.getLayers().get("Collision").setVisible(false);
+        difficulty = new DifficultySystem();
+        timerSystem = new TimerSystem();
+        timerSystem.initTimer();
 
-        GameApp.addFont("cyberpunk", "fonts/Sefa.ttf", 75);
-        GameApp.addTexture("scoreBoard", "textures/scoreBoard.png");
-        GameApp.addFont("basicSmall", "fonts/basic.ttf", 50);
+        // Hide the collision layer so the player doesn't see it
+        tiledMap.getLayers().get("collision").setVisible(false);
+
+        player = new Player(320, 160, tiledMap);
+        player.show();
 
         camara = new OrthographicCamera();
         camara.setToOrtho(false, 320, 180);
 
-        // Create player at fixed position
-        player = new Player(320, 160, tiledMap);
-        /*
-            Spawn enemies based on EnemyConfig settings.
-            If RANDOM_SPAWN = true → spawn in random valid tiles.
-            ENEMY_COUNT defines how many enemies are created.
-        */
-        for (int i = 0; i < EnemyConfig.ENEMY_COUNT; i++) {
-            float[] pos = getRandomSpawn();
-            enemies.add(new EnemyDrone(pos[0], pos[1], tiledMap, player));
-        }
+        score = new Score();
+        score.show();
 
-        player.show();
-        for (EnemyDrone enemy : enemies) {
-            enemy.show();
-        }
-
+        GameApp.addFont("cooldown", "fonts/Sefa.ttf", 50);
     }
 
     @Override
     public void render(float delta) {
-//        System.out.println(score.getScore());
-        for (EnemyDrone enemyDrone : enemies) {
-            float dx = enemyDrone.getX() - player.getX();
-            float dy = enemyDrone.getY() - player.getY();
-            float dist = (float) Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < EnemyConfig.PLAYER_DEATH_DISTANCE) {
-                System.out.println("PLAYER DIED!");
-
-
-                GameApp.switchScreen("GameOverScreen");
-                return; // stop rendering this frame
-            }
-        }
         super.render(delta);
         GameApp.clearScreen();
         GameApp.startShapeRenderingFilled();
         GameApp.startSpriteRendering();
 
-        // Update the player's movement
-        player.update(delta);
-        GameState.updateScore(delta);
+        timerSystem.timerLogic(delta);
 
-        System.out.println(GameState.score);
-
-        for (EnemyDrone enemyDrone : enemies) {
-            enemyDrone.update(delta, enemies);
-        }
-
-        // Camera follows the player
         camara.position.set(player.getX(), player.getY(), 0);
         camara.update();
 
-        // Render the map using the camera
         mapRenderer.setView(camara);
         mapRenderer.render();
 
-        // Render player + enemies using shape renderer
         GameApp.getShapeRenderer().setProjectionMatrix(camara.combined);
 
-        player.render();
+        player.render(delta);
 
-        for (EnemyDrone enemyDrone : enemies) {
-            enemyDrone.render();
-        }
+        difficulty.spawnEnemiesBasedOnScore(
+                delta,
+                timerSystem,
+                tiledMap,
+                player,
+                enemies,
+                score
+        );
 
         GameApp.endSpriteRendering();
         GameApp.endShapeRendering();
+
+        drawUI(delta);
     }
 
     @Override
@@ -126,46 +99,26 @@ public class WorldMap extends ScalableGameScreen {
         mapRenderer.dispose();
     }
 
-    /*
-        Picks a random tile inside the map that is NOT a wall.
-        It checks the "collision" layer:
-            - If the tile has no "blocked" property → it's walkable.
-            - Converts tile coordinates to world coordinates by multiplying by 16.
-    */
-    private float[] getRandomSpawn() {
+    public void drawUI(float delta) {
 
-        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("collision");
+        // Correct virtual resolution from ScalableGameScreen
+        float virtualWidth = getViewport().getWorldWidth();
+        float virtualHeight = getViewport().getWorldHeight();
 
-        if (layer == null) {
-            System.out.println("ERROR: collision layer not found!");
-            return new float[]{0, 0};
+        float rightWith = virtualWidth - 275;
+
+        GameApp.startSpriteRendering();
+        score.render(delta, rightWith);
+
+        // Draw attack ready text
+        if (player.canAttack()) {
+            // balk die toeneemt.
+            // stamina. 
+            String msg = "Attack is ready!";
+
+            GameApp.drawText("cooldown", msg, rightWith, virtualHeight - 200, Color.RED);
         }
-
-        int mapWidth = layer.getWidth();
-        int mapHeight = layer.getHeight();
-
-        while (true) {
-            int tileX = (int) GameApp.random(0, mapWidth - 1);
-            int tileY = (int) GameApp.random(0, mapHeight - 1);
-
-            TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
-
-            // Skip tiles that are walls
-            if (cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey("blocked"))
-                continue;
-
-            float worldX = tileX * 16;
-            float worldY = tileY * 16;
-
-            // Check distance from player → must not be too close
-            float dx = worldX - player.getX();
-            float dy = worldY - player.getY();
-            float dist = (float) Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < EnemyConfig.MIN_SPAWN_DISTANCE_FROM_PLAYER)
-                continue; // too close → try again
-
-            return new float[]{worldX, worldY};
-        }
+        GameApp.endSpriteRendering();
     }
+
 }

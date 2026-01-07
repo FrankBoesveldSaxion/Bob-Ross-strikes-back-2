@@ -1,15 +1,23 @@
 package nl.saxion.game.game.systems;
 
-public class EnemyConfig {
+public class EnemyDroneConfig {
 
     // How many enemies should spawn in the world?
-    public static int ENEMY_COUNT = 5;
+    public static int MAX_ENEMY_COUNT = 25;
 
     // Movement speed of each enemy (pixels per second)
     public static float ENEMY_SPEED = 30f;
 
+    // every x seconds spawn 1 enemy.
+    public static int ENEMY_SPAWN_PER_SECOND = 2;
+
     // If true, enemies spawn at random valid locations on the map
     public static boolean RANDOM_SPAWN = true;
+
+    public static float PUSH_RADIUS = 5f;
+
+    public static int HEALTH = 1;
+    public static int SCORE_INCREASE_WHEN_DEAD = 10;
 
     // Minimum distance enemies must spawn away from the player
     public static float MIN_SPAWN_DISTANCE_FROM_PLAYER = 120f;
