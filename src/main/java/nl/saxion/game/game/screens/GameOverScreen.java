@@ -40,8 +40,19 @@ public class GameOverScreen extends ScalableGameScreen {
                 "white"
         );
 
+
+        // Display time
+        int time = (int) GameState.time;
+        GameApp.drawTextCentered(
+                "basic",
+                "Your time: " + time,
+                getWorldWidth() / 2,
+                getWorldHeight() / 2 - 40,
+                "white"
+        );
+
         // Small instructions
-        GameApp.drawTextCentered("basic", "Press Enter to return to Main Menu", getWorldWidth()/2, getWorldHeight()/2 - 80, "white");
+        GameApp.drawTextCentered("basic", "Press Enter to return to Main Menu", getWorldWidth()/2, getWorldHeight()/2 - 100, "white");
 
         GameApp.endSpriteRendering();
     }

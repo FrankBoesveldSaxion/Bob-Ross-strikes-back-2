@@ -10,7 +10,6 @@ import nl.saxion.game.game.entities.Score;
 import nl.saxion.game.game.systems.DifficultySystem;
 import nl.saxion.game.game.systems.EnemyDroneConfig;
 import nl.saxion.game.game.systems.GameState;
-import nl.saxion.game.game.systems.TimerSystem;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
 import nl.saxion.game.game.entities.EnemyDrone;
@@ -23,9 +22,8 @@ public class WorldMap extends ScalableGameScreen {
     private OrthogonalTiledMapRenderer mapRenderer;
 
     private Player player;
-    private Score score;
+    public Score score;
     private DifficultySystem difficulty;
-    private TimerSystem timerSystem;
 
 
     // Holds all enemies in the world
@@ -47,8 +45,6 @@ public class WorldMap extends ScalableGameScreen {
         tiledMap = new TmxMapLoader().load("maps/NewMap/DefenitiveMap.tmx");
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
         difficulty = new DifficultySystem();
-        timerSystem = new TimerSystem();
-        timerSystem.initTimer();
 
         // Hide the collision layer so the player doesn't see it
         tiledMap.getLayers().get("Collision").setVisible(false);
@@ -67,6 +63,8 @@ public class WorldMap extends ScalableGameScreen {
 
     @Override
     public void render(float delta) {
+        GameState.updateTime(delta);
+
         for (EnemyDrone enemyDrone : enemies) {
             float dx = enemyDrone.getX() - player.getX();
             float dy = enemyDrone.getY() - player.getY();
@@ -84,9 +82,6 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.clearScreen();
         GameApp.startShapeRenderingFilled();
         GameApp.startSpriteRendering();
-        GameState.updateScore(delta);
-
-        timerSystem.timerLogic(delta);
 
         camara.position.set(player.getX(), player.getY(), 0);
         camara.update();
@@ -100,17 +95,17 @@ public class WorldMap extends ScalableGameScreen {
 
         difficulty.spawnEnemiesBasedOnScore(
                 delta,
-                timerSystem,
                 tiledMap,
                 player,
-                enemies,
-                score
+                enemies
         );
 
         GameApp.endSpriteRendering();
         GameApp.endShapeRendering();
 
         drawUI(delta);
+
+        System.out.println("Score: " + GameState.score +  "time: " + GameState.time);
     }
 
     @Override

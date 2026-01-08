@@ -4,7 +4,6 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import nl.saxion.game.game.entities.EnemyDrone;
 import nl.saxion.game.game.entities.Player;
-import nl.saxion.game.game.entities.Score;
 import nl.saxion.gameapp.GameApp;
 import java.util.ArrayList;
 
@@ -14,20 +13,18 @@ public class DifficultySystem {
 
     public void spawnEnemiesBasedOnScore(
             float delta,
-            TimerSystem time,
             TiledMap tiledMap,
             Player player,
-            ArrayList<EnemyDrone> enemies,
-            Score score
+            ArrayList<EnemyDrone> enemies
     ) {
         // every 1 enemy based on de config.
         int enemyDroneSpawnPerSecond = EnemyDroneConfig.ENEMY_SPAWN_PER_SECOND;
         // increase difficulty after 25 seconds of playing.
-        if (time.getTime() == 25){
+        if (GameState.time == 25){
             enemyDroneSpawnPerSecond = EnemyDroneConfig.ENEMY_SPAWN_PER_SECOND / 2;
         }
 
-        if (time.getTime() % enemyDroneSpawnPerSecond == 0) {
+        if (GameState.time % enemyDroneSpawnPerSecond == 0) {
             if (!spawnedOnce) {
                 spawnedOnce = true; // prevents more than 1 spawn
 
@@ -49,7 +46,7 @@ public class DifficultySystem {
         for (int i = enemies.size() - 1; i >= 0; i--) {
             if (enemies.get(i).isDead()) {
                 enemies.remove(i);
-                score.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
+                GameState.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
             }
         }
 
