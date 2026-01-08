@@ -58,7 +58,7 @@ public class WorldMap extends ScalableGameScreen {
         score = new Score();
         score.show();
 
-        GameApp.addFont("cooldown", "fonts/Sefa.ttf", 50);
+        GameApp.addFont("cooldown", "fonts/Sefa.ttf", 150);
     }
 
     @Override
@@ -71,8 +71,6 @@ public class WorldMap extends ScalableGameScreen {
             float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
             if (dist < EnemyDroneConfig.PLAYER_DEATH_DISTANCE) {
-                System.out.println("PLAYER DIED!");
-
                 GameApp.switchScreen("GameOverScreen");
                 return; // stop rendering this frame
             }
@@ -101,11 +99,8 @@ public class WorldMap extends ScalableGameScreen {
         );
 
         GameApp.endSpriteRendering();
-        GameApp.endShapeRendering();
-
         drawUI(delta);
-
-        System.out.println("Score: " + GameState.score +  "time: " + GameState.time);
+        GameApp.endShapeRendering();
     }
 
     @Override
@@ -125,14 +120,25 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.startSpriteRendering();
         score.render(delta, rightWith);
 
-        // Draw attack ready text
-        if (player.canAttack()) {
-            // balk die toeneemt.
-            // stamina. 
-            String msg = "Attack is ready!";
+        float cooldown = player.attackCooldown;
+        String progress;
+        Color color = Color.RED;
 
-            GameApp.drawText("cooldown", msg, rightWith, virtualHeight - 200, Color.RED);
+        if (cooldown < 0.6f) {
+            progress = "+";
+        } else if (cooldown < 1.2f) {
+            progress = "++";
+        } else {
+            progress = "+++";
         }
+        if (player.canAttack()) {
+            color = Color.GREEN;
+            progress = "+++";
+        }
+
+        GameApp.drawText("cooldown", progress, rightWith + 50, virtualHeight - 250, color);
+
+
         GameApp.endSpriteRendering();
     }
 

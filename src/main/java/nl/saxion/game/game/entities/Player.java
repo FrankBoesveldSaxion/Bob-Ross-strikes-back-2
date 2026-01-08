@@ -17,7 +17,7 @@ public class Player {
     private boolean spaceWasPressed = false; // Prevent holding space
     private ArrayList<EnemyDrone> enemies; // Reference to enemies list
 
-    private float attackCooldown = 0f; // time left until next attack
+    public float attackCooldown = 0f; // time left until next attack
 
     public Player(float startX, float startY, TiledMap map) {
         this.x = startX;
@@ -142,6 +142,9 @@ public class Player {
         return attackCooldown <= 0f;
     }
 
+    public float getAttackCooldown(){
+        return attackCooldown;
+    }
 
     public float getX() {
         return x;

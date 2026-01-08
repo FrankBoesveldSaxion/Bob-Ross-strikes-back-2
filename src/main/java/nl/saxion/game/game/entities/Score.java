@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 import nl.saxion.game.game.systems.GameState;
 import nl.saxion.gameapp.GameApp;
 
+import javax.xml.parsers.SAXParser;
+
 public class Score {
 
     int positionX = GameApp.getWindowWidth() + 300;

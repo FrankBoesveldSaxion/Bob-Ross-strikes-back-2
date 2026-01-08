@@ -56,7 +56,7 @@ public class DifficultySystem {
 
 
     private float[] getRandomSpawn(TiledMap tiledMap) {
-        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("collision");
+        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("Collision");
 
         if (layer == null) {
             System.out.println("ERROR: collision layer not found!");
