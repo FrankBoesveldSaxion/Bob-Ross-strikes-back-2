@@ -9,7 +9,7 @@ public class EnemyDroneConfig {
     public static float ENEMY_SPEED = 30f;
 
     // every x seconds spawn 1 enemy.
-    public static int ENEMY_SPAWN_PER_SECOND = 2;
+    public static int ENEMY_SPAWN_PER_SECOND = 5;
 
     // If true, enemies spawn at random valid locations on the map
     public static boolean RANDOM_SPAWN = true;
