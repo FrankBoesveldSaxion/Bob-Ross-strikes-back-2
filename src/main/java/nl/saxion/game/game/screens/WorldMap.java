@@ -1,5 +1,6 @@
 package nl.saxion.game.game.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -59,6 +60,7 @@ public class WorldMap extends ScalableGameScreen {
         score.show();
 
         GameApp.addFont("cooldown", "fonts/Sefa.ttf", 150);
+        GameApp.addFont("attackTip", "fonts/basic.ttf", 50);
     }
 
     @Override
@@ -118,25 +120,32 @@ public class WorldMap extends ScalableGameScreen {
         float rightWith = virtualWidth - 275;
 
         GameApp.startSpriteRendering();
-        score.render(delta, rightWith);
+        score.render(delta, rightWith, virtualHeight);
 
         float cooldown = player.attackCooldown;
         String progress;
         Color color = Color.RED;
 
-        if (cooldown < 0.6f) {
-            progress = "+";
+        // show the progress based on cooldown of attack
+        if (cooldown < 0.4f) {
+            progress = "";
         } else if (cooldown < 1.2f) {
+            progress = "+";
+        } else if (cooldown < 2.0f) {
             progress = "++";
         } else {
             progress = "+++";
         }
+
         if (player.canAttack()) {
+            // player tip.
+            GameApp.drawText("attackTip", "(Press space to attack)", rightWith - 30, virtualHeight - 200, Color.WHITE);
             color = Color.GREEN;
             progress = "+++";
         }
 
-        GameApp.drawText("cooldown", progress, rightWith + 50, virtualHeight - 250, color);
+
+        GameApp.drawText("cooldown", progress, rightWith + 50, virtualHeight - 260, color);
 
 
         GameApp.endSpriteRendering();

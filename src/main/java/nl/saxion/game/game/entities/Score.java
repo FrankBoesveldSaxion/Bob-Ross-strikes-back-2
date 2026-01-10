@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import nl.saxion.game.game.systems.GameState;
 import nl.saxion.gameapp.GameApp;
 
-import javax.xml.parsers.SAXParser;
-
 public class Score {
 
     int positionX = GameApp.getWindowWidth() + 300;
@@ -20,14 +18,12 @@ public class Score {
         positionY = GameApp.getWindowHeight() + 150;
     }
 
-    public void render(float delta, float rightWith) {
-
+    public void render(float delta, float rightWith, float virtualHeight) {
+        float height = virtualHeight - 200;
         GameState.updateScore(delta);
 
-        int boardY = GameApp.getWindowHeight() + 75;
-
-        GameApp.drawTexture("scoreBoard", rightWith - 15, boardY, 275, 200);
-        GameApp.drawTextCentered("basicSmall", "Score:", rightWith + 90, boardY + 125, Color.CYAN);
-        GameApp.drawTextCentered("cyberpunk", String.valueOf(GameState.score), rightWith + 140, boardY + 80, Color.CYAN);
+        GameApp.drawTexture("scoreBoard", rightWith - 15, height, 275, 200);
+        GameApp.drawTextCentered("basicSmall", "Score:", rightWith + 90, height + 125, Color.CYAN);
+        GameApp.drawTextCentered("cyberpunk", String.valueOf(GameState.score), rightWith + 140, height + 80, Color.CYAN);
     }
 }
