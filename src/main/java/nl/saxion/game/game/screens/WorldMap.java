@@ -127,26 +127,26 @@ public class WorldMap extends ScalableGameScreen {
         Color color = Color.RED;
 
         // show the progress based on cooldown of attack
-        if (cooldown < 0.4f) {
+        progress = "";
+        if (cooldown < 0.5f) {
             progress = "";
-        } else if (cooldown < 1.2f) {
+        } else if (cooldown < 1.0f) {
             progress = "+";
-        } else if (cooldown < 2.0f) {
+        } else if (cooldown < 1.5f) {
             progress = "++";
-        } else {
+        } else if (cooldown < 2.0f) {
             progress = "+++";
         }
 
+
         if (player.canAttack()) {
-            // player tip.
-            GameApp.drawText("attackTip", "(Press space to attack)", rightWith - 30, virtualHeight - 200, Color.WHITE);
             color = Color.GREEN;
             progress = "+++";
         }
-
+            // player tip.
+        GameApp.drawText("attackTip", "(Press space to attack)", rightWith - 30, virtualHeight - 200, Color.WHITE);
 
         GameApp.drawText("cooldown", progress, rightWith + 50, virtualHeight - 260, color);
-
 
         GameApp.endSpriteRendering();
     }
