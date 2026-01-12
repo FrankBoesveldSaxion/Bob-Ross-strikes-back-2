@@ -24,6 +24,7 @@ public class CollisionSystem {
         }
 
         // returns true if there is a collision.
-        return cell.getTile().getProperties().get("blocked").equals(true);
+        Boolean blocked = (Boolean) cell.getTile().getProperties().get("blocked");
+        return blocked != null && blocked;
     }
 }
