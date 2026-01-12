@@ -30,6 +30,7 @@ public class Player {
     }
 
     public void show() {
+        GameApp.addSound("Attack-Sound", "audio/attack-sound.mp3");
         GameApp.addSpriteSheet("bobWalkLeft", "textures/animations/Player/bobRossRunAnimationLeftRun.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
         GameApp.addAnimationFromSpritesheet("bobWalkLeft", "bobWalkLeft", SpriteConfig.FRAME_DURATION, true);
 
@@ -118,6 +119,8 @@ public class Player {
 
     public void mainAttack() {
         if (enemies == null) return;
+        GameApp.playSound("Attack-Sound", 0.5f);
+
 
         // Check all enemies and damage those in range
         for (EnemyDrone enemyDrone : enemies) {

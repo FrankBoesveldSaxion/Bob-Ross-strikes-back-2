@@ -21,6 +21,8 @@ public class MainMenuScreen extends ScalableGameScreen {
 
     @Override
     public void show() {
+        GameApp.addMusic("Start-Music", "audio/begin-scherm.mp3");
+        GameApp.playMusic("Start-Music", true);
         GameApp.addFont("basic", "fonts/basic.ttf", 60);
         GameApp.addTexture("menuBg", "textures/achtergrond_mainmenu.jpg");
 
@@ -105,5 +107,7 @@ public class MainMenuScreen extends ScalableGameScreen {
     public void hide() {
         GameApp.disposeFont("basic");
         GameApp.disposeTexture("menuBg");
+        GameApp.stopMusic("Start-Music");
+        GameApp.disposeMusic("Start-Music");
     }
 }

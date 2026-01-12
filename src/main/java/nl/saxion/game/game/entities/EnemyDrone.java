@@ -40,6 +40,7 @@ public class EnemyDrone {
         // Check if drone should start dying
         if (health <= 0 && !isDying) {
             isDying = true;
+            GameApp.playSound("Robot-Death-Sound", 2.0f);
             GameApp.resetAnimation("droneDeath");
         }
 

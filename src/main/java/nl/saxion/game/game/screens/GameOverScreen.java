@@ -13,6 +13,8 @@ public class GameOverScreen extends ScalableGameScreen {
     @Override
     public void show() {
         GameApp.addFont("basic", "fonts/basic.ttf", 50);
+        GameApp.addSound("Game-Over", "audio/game-over.mp3");
+        GameApp.playSound("Game-Over");
     }
 
     @Override

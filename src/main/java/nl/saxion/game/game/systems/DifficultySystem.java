@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class DifficultySystem {
 
+
     private boolean spawnedOnce = false;
 
     public void spawnEnemiesBasedOnScore(
@@ -49,6 +50,7 @@ public class DifficultySystem {
         //Handle death
         for (int i = enemies.size() - 1; i >= 0; i--) {
             if (enemies.get(i).isDead()) {
+//                GameApp.playSound("Robot-Death-Sound", 1.5f);
                 enemies.remove(i);
                 GameState.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
             }

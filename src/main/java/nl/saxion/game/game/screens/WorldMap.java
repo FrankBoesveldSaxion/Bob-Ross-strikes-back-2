@@ -38,6 +38,15 @@ public class WorldMap extends ScalableGameScreen {
 
     @Override
     public void show() {
+
+        GameApp.addFont("basic", "fonts/basic.ttf", 50);
+
+        // Load background music
+        GameApp.addMusic("BG-Music", "audio/Epic-Battle-Music.mp3");
+        GameApp.addSound("Robot-Death-Sound", "audio/deadRobot.mp3");
+        // Start playing music (looped)
+        GameApp.playMusic("BG-Music", true, 0.3f);
+
         // Reset enemy and score.
         enemies.clear();
         GameState.reset();
@@ -109,7 +118,13 @@ public class WorldMap extends ScalableGameScreen {
     public void hide() {
         tiledMap.dispose();
         mapRenderer.dispose();
+        GameApp.stopMusic("BG-Music");
+        GameApp.disposeMusic("BG-Music");
+        GameApp.disposeFont("basic");
     }
+
+
+
 
     public void drawUI(float delta) {
 
