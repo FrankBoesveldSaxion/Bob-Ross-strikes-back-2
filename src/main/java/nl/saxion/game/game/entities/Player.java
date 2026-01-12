@@ -41,7 +41,7 @@ public class Player {
 
         GameApp.addSpriteSheet("bobStopRunRight", "textures/animations/Player/BobRossRunToBaseRight.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
         GameApp.addAnimationFromSpritesheet("bobStopRunRight", "bobStopRunRight", SpriteConfig.FRAME_DURATION, false);
-        // GameApp.addSpriteSheet("Bob");
+            // GameApp.addSpriteSheet("Bob");
     }
 
     public void render(float delta) {
