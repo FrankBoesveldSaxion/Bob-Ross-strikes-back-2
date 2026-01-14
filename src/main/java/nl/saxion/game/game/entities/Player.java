@@ -28,7 +28,6 @@ public class Player {
     private enum PlayerState { IDLE, RUNNING, ATTACK_TRANSITION, ATTACK_SLASH }
     private PlayerState state = PlayerState.IDLE;
 
-    public float attackCooldown = 0f; // time left until next attack
     private String currentAnimationKey = "";
 
     // Keys per fase

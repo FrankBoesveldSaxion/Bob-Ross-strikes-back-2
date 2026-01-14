@@ -1,6 +1,5 @@
 package nl.saxion.game.game.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -137,7 +136,7 @@ public class WorldMap extends ScalableGameScreen {
         GameApp.startSpriteRendering();
         score.render(delta, rightWith, virtualHeight);
 
-        float cooldown = player.attackCooldown;
+        float cooldown = player.getAttackCooldown();
         String progress;
         Color color = Color.RED;
 
