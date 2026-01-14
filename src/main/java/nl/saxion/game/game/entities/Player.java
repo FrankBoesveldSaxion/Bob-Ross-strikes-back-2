@@ -1,9 +1,10 @@
+
 package nl.saxion.game.game.entities;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import nl.saxion.game.game.systems.SpriteConfig;
 import nl.saxion.gameapp.GameApp;
-
 
 import java.util.ArrayList;
 
@@ -13,11 +14,29 @@ public class Player {
     private float x;
     private float y;
     private final TiledMap map;
-    private int currentDirection = 2; // 1=left, 2=right
-    private boolean spaceWasPressed = false; // Prevent holding space
-    private ArrayList<EnemyDrone> enemies; // Reference to enemies list
 
-    private float attackCooldown = 0f; // time left until next attack
+    // 1 = left, 2 = right
+    private int currentDirection = 2;
+
+    // Cooldown voor de volgende aanval
+    private float attackCooldown = 0f;
+
+    // Enemies referentie (voor damage tijdens slash)
+    private ArrayList<EnemyDrone> enemies;
+
+    // --- Animatie & states ---
+    private enum PlayerState { IDLE, RUNNING, ATTACK_TRANSITION, ATTACK_SLASH }
+    private PlayerState state = PlayerState.IDLE;
+
+    private String currentAnimationKey = "";
+
+    // Keys per fase
+    private String transitionAnimationKey = ""; // stand->slash of run->slash (L/R)
+    private String slashAnimationKey = "";      // daadwerkelijke slag (L/R)
+
+    // Damage valt één keer per aanval, op het hit-frame
+    private boolean attackDamageApplied = false;
+    private int slashHitFrameIndex = 0; // dynamisch bepaald op start van de aanval
 
     public Player(float startX, float startY, TiledMap map) {
         this.x = startX;
@@ -30,100 +49,198 @@ public class Player {
     }
 
     public void show() {
-        GameApp.addSpriteSheet("bobWalkLeft", "textures/animations/Player/bobRossRunAnimationLeftRun.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
-        GameApp.addAnimationFromSpritesheet("bobWalkLeft", "bobWalkLeft", SpriteConfig.FRAME_DURATION, true);
+        // --- Lopen ---
+        GameApp.addSpriteSheet("bobWalkLeft",
+                "textures/animations/Player/bobRossRunAnimationLeftRun.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobWalkLeft", "bobWalkLeft",
+                SpriteConfig.FRAME_DURATION, true);
 
-        GameApp.addSpriteSheet("bobWalkRight", "textures/animations/Player/bobRossRunAnimationRightRun.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
-        GameApp.addAnimationFromSpritesheet("bobWalkRight", "bobWalkRight", SpriteConfig.FRAME_DURATION, true);
+        GameApp.addSpriteSheet("bobWalkRight",
+                "textures/animations/Player/bobRossRunAnimationRightRun.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobWalkRight", "bobWalkRight",
+                SpriteConfig.FRAME_DURATION, true);
 
-        GameApp.addSpriteSheet("bobStopRunLeft", "textures/animations/Player/BobRossRunToBaseLeft.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
-        GameApp.addAnimationFromSpritesheet("bobStopRunLeft", "bobStopRunLeft", SpriteConfig.FRAME_DURATION, false);
+        // --- Stop-run (uitloop als je net stopt) ---
+        GameApp.addSpriteSheet("bobStopRunLeft",
+                "textures/animations/Player/BobRossRunToBaseLeft.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobStopRunLeft", "bobStopRunLeft",
+                SpriteConfig.FRAME_DURATION, false);
 
-        GameApp.addSpriteSheet("bobStopRunRight", "textures/animations/Player/BobRossRunToBaseRight.png", SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
-        GameApp.addAnimationFromSpritesheet("bobStopRunRight", "bobStopRunRight", SpriteConfig.FRAME_DURATION, false);
-            // GameApp.addSpriteSheet("Bob");
+        GameApp.addSpriteSheet("bobStopRunRight",
+                "textures/animations/Player/BobRossRunToBaseRight.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobStopRunRight", "bobStopRunRight",
+                SpriteConfig.FRAME_DURATION, false);
+
+        // --- Overgang: RUN -> SLASH ---
+        GameApp.addSpriteSheet("bobRunToSlashLeft",
+                "textures/animations/Player/BobRossRunningToSlashLeft.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobRunToSlashLeft", "bobRunToSlashLeft",
+                SpriteConfig.FRAME_DURATION, false);
+
+        GameApp.addSpriteSheet("bobRunToSlashRight",
+                "textures/animations/Player/BobRossRunningToSlashRight.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobRunToSlashRight", "bobRunToSlashRight",
+                SpriteConfig.FRAME_DURATION, false);
+
+        // --- Overgang: STAND -> SLASH ---
+        GameApp.addSpriteSheet("bobStandToSlashLeft",
+                "textures/animations/Player/BobRossStandToSlashLeft.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobStandToSlashLeft", "bobStandToSlashLeft",
+                SpriteConfig.FRAME_DURATION, false);
+
+        GameApp.addSpriteSheet("bobStandToSlashRight",
+                "textures/animations/Player/BobRossStandToSlashRight.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobStandToSlashRight", "bobStandToSlashRight",
+                SpriteConfig.FRAME_DURATION, false);
+
+        // --- De daadwerkelijke SLASH (impact) ---
+        GameApp.addSpriteSheet("bobSlashLeft",
+                "textures/animations/Player/BobRossSlashLeft.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobSlashLeft", "bobSlashLeft",
+                SpriteConfig.FRAME_DURATION, false);
+
+        GameApp.addSpriteSheet("bobSlashRight",
+                "textures/animations/Player/BobRossSlashRight.png",
+                SpriteConfig.FRAME_WIDTH, SpriteConfig.FRAME_HEIGHT);
+        GameApp.addAnimationFromSpritesheet("bobSlashRight", "bobSlashRight",
+                SpriteConfig.FRAME_DURATION, false);
     }
 
+    private boolean wasMoving = false;
+
     public void render(float delta) {
-        // keeps track
-        String currentAnimation;
 
-        // needs to reload / reset the animation or like called = true call the animation from the beginning.
-
-        float newX = x;
-        float newY = y;
-
-        boolean isMoving = false;
-
-        // Reduce attack cooldown every frame
+        // Cooldown aftellen (na render logica; maakt niet uit, zolang je per frame aftelt)
         if (attackCooldown > 0f) {
             attackCooldown -= delta;
         }
 
-        float speed = 100;
-        if (GameApp.isKeyPressed(51)) {
-            newY += speed * delta; // W
-            isMoving = true;
-        }
-        if (GameApp.isKeyPressed(47)) {
-            newY -= speed * delta; // S
-            isMoving = true;
-        }
-        if (GameApp.isKeyPressed(29)) {
-            newX -= speed * delta; // A
-            currentDirection = 1;
-            isMoving = true;
-        }
-        if (GameApp.isKeyPressed(32)) {
-            newX += speed * delta; // D
-            currentDirection = 2;
-            isMoving = true;
+        // Lees input
+        float newX = x;
+        float newY = y;
+        boolean isMoving = false;
+        float speed = 100f;
+
+        // Tijdens ATTACK_* locken we beweging voor stabiele animatie (optioneel, voelt het best)
+        boolean movementLocked = (state == PlayerState.ATTACK_TRANSITION || state == PlayerState.ATTACK_SLASH);
+
+        if (!movementLocked) {
+            if (GameApp.isKeyPressed(Input.Keys.W)) { newY += speed * delta; isMoving = true; }
+            if (GameApp.isKeyPressed(Input.Keys.S)) { newY -= speed * delta; isMoving = true; }
+            if (GameApp.isKeyPressed(Input.Keys.A)) { newX -= speed * delta; isMoving = true; currentDirection = 1; }
+            if (GameApp.isKeyPressed(Input.Keys.D)) { newX += speed * delta; isMoving = true; currentDirection = 2; }
         }
 
-        if (GameApp.isKeyPressed(62)) { // Space key
-            if (!spaceWasPressed && attackCooldown <= 0f) {
-                mainAttack();
-                attackCooldown = SpriteConfig.ATTACK_MAIN_COOLDOWN_TIME; // reset cooldown
-                spaceWasPressed = true;
+        // Spatie: start aanval alleen als cooldown klaar is en we niet al aan het aanvallen zijn
+        if (GameApp.isKeyJustPressed(Input.Keys.SPACE) && canAttack()) {
+            startAttack(isMoving);
+        }
+
+        // --- Kies & teken animaties op basis van state ---
+        switch (state) {
+            case ATTACK_TRANSITION -> {
+                currentAnimationKey = transitionAnimationKey;
+                GameApp.updateAnimation(currentAnimationKey);
+                GameApp.drawAnimation(currentAnimationKey, x - 15, y - 5, 32f, 32f);
+
+                // Is de overgang klaar? Doorzetten naar echte slash
+                if (GameApp.isAnimationFinished(currentAnimationKey)) {
+                    GameApp.resetAnimation(currentAnimationKey); // klaar voor volgende keer
+                    GameApp.resetAnimation(slashAnimationKey);   // begin de slash op frame 0
+                    state = PlayerState.ATTACK_SLASH;
+                }
             }
-        } else {
-            spaceWasPressed = false;
+
+            case ATTACK_SLASH -> {
+                currentAnimationKey = slashAnimationKey;
+                GameApp.updateAnimation(currentAnimationKey);
+                GameApp.drawAnimation(currentAnimationKey, x - 15, y - 5, 32f, 32f);
+
+                // Impact-moment: één keer damage toepassen op het hit-frame
+                int currentFrame = GameApp.getAnimationCurrentFrameIndex(currentAnimationKey);
+                if (!attackDamageApplied && currentFrame >= slashHitFrameIndex) {
+                    mainAttack();                 // valt de klap
+                    attackDamageApplied = true;   // slechts één keer
+                    attackCooldown = SpriteConfig.ATTACK_MAIN_COOLDOWN_TIME;
+                }
+
+                // Slash klaar → terug naar bewegen/idle
+                if (GameApp.isAnimationFinished(currentAnimationKey)) {
+                    GameApp.resetAnimation(currentAnimationKey);
+                    state = (GameApp.isKeyPressed(Input.Keys.W) ||
+                            GameApp.isKeyPressed(Input.Keys.A) ||
+                            GameApp.isKeyPressed(Input.Keys.S) ||
+                            GameApp.isKeyPressed(Input.Keys.D))
+                            ? PlayerState.RUNNING : PlayerState.IDLE;
+                }
+            }
+
+            case RUNNING -> {
+                currentAnimationKey = (currentDirection == 1) ? "bobWalkLeft" : "bobWalkRight";
+                GameApp.updateAnimation(currentAnimationKey);
+                GameApp.drawAnimation(currentAnimationKey, x - 15, y - 5, 32f, 32f);
+                wasMoving = true;
+            }
+
+            case IDLE -> {
+                // Net gestopt met lopen → korte uitloop
+                currentAnimationKey = (currentDirection == 1) ? "bobStopRunLeft" : "bobStopRunRight";
+                if (wasMoving) {
+                    GameApp.resetAnimation(currentAnimationKey);
+                    wasMoving = false;
+                }
+                GameApp.updateAnimation(currentAnimationKey);
+                GameApp.drawAnimation(currentAnimationKey, x - 15, y - 5, 32f, 32f);
+            }
         }
 
-        // ONLY update animation if moving
-        if (isMoving) {
-            // RUN ANIMATIE
-            currentAnimation = (currentDirection == 1) ? "bobWalkLeft" : "bobWalkRight";
-            GameApp.updateAnimation(currentAnimation);
-        } else {
-            // HIJ STOPTE NET MET RENNEN
-            currentAnimation = (currentDirection == 1) ? "bobStopRunLeft" : "bobStopRunRight";
-            GameApp.updateAnimation(currentAnimation);
-            GameApp.drawAnimation(currentAnimation, x - 15, y - 5, 32f, 32f);
-        }
-
-        // ALWAYS draw the animation
-        if (currentDirection == 1) {
-            GameApp.drawAnimation("bobWalkLeft", x - 15, y - 5, 32f, 32f);
-        } else {
-            GameApp.drawAnimation("bobWalkRight", x - 15, y - 5, 32f, 32f);
-        }
-        GameApp.drawAnimation(currentAnimation, x - 15, y - 5, 32f, 32f);
-
-        if (!isCollision(newX, newY, map)) {
+        // Positie alleen aanpassen als geen collision (en niet movement-locked)
+        if (!movementLocked && !isCollision(newX, newY, map)) {
             x = newX;
             y = newY;
         }
+
+        // State bijwerken als we niet aan het aanvallen zijn
+        if (state != PlayerState.ATTACK_TRANSITION && state != PlayerState.ATTACK_SLASH) {
+            state = isMoving ? PlayerState.RUNNING : PlayerState.IDLE;
+        }
+    }
+
+    private void startAttack(boolean wasMovingWhenTriggered) {
+        // Kies overgangsanimatie o.b.v. richting + bewegen
+        if (wasMovingWhenTriggered) {
+            transitionAnimationKey = (currentDirection == 1) ? "bobRunToSlashLeft" : "bobRunToSlashRight";
+        } else {
+            transitionAnimationKey = (currentDirection == 1) ? "bobStandToSlashLeft" : "bobStandToSlashRight";
+        }
+
+        // Kies slash-animatie o.b.v. richting
+        slashAnimationKey = (currentDirection == 1) ? "bobSlashLeft" : "bobSlashRight";
+
+        // Reset en start overgang
+        GameApp.resetAnimation(transitionAnimationKey);
+        state = PlayerState.ATTACK_TRANSITION;
+        attackDamageApplied = false;
+
+        // Dynamisch impact-frame bepalen: midden van de slash-animatie (veilig default)
+        int slashFrames = GameApp.getAnimationFrameCount(slashAnimationKey);
+        slashHitFrameIndex = Math.max(0, Math.min(slashFrames - 1, slashFrames / 2));
     }
 
     public void mainAttack() {
         if (enemies == null) return;
 
-        // Check all enemies and damage those in range
         for (EnemyDrone enemyDrone : enemies) {
             float distance = calculateDistance(x, y, enemyDrone.getX(), enemyDrone.getY());
-
-            // Attack range in pixels
             float attackRange = SpriteConfig.ATTACK_RANGE;
             if (distance <= attackRange) {
                 enemyDrone.takeDamage(1);
@@ -131,7 +248,6 @@ public class Player {
         }
     }
 
-    //calculates distance from plater to X adn Y 2;
     private float calculateDistance(float x1, float y1, float x2, float y2) {
         float dx = x2 - x1;
         float dy = y2 - y1;
@@ -139,15 +255,12 @@ public class Player {
     }
 
     public boolean canAttack() {
-        return attackCooldown <= 0f;
+        // Niet opnieuw aanvallen tijdens overgang/slash
+        return attackCooldown <= 0f
+                && state != PlayerState.ATTACK_TRANSITION
+                && state != PlayerState.ATTACK_SLASH;
     }
 
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
+    public float getX() { return x; }
+    public float getY() { return y; }
 }
