@@ -15,18 +15,11 @@ public class Player {
     private float y;
     private final TiledMap map;
     private int currentDirection = 2; // 1=left, 2=right
-    private boolean spaceWasPressed = false; // Prevent holding space
     private ArrayList<EnemyDrone> enemies; // Reference to enemies list
     private ArrayList<EnemyRobot> robots; // Reference to Robot list
 
-    // 1 = left, 2 = right
-    private int currentDirection = 2;
-
     // Cooldown voor de volgende aanval
     private float attackCooldown = 0f;
-
-    // Enemies referentie (voor damage tijdens slash)
-    private ArrayList<EnemyDrone> enemies;
 
     // --- Animatie & states ---
     private enum PlayerState { IDLE, RUNNING, ATTACK_TRANSITION, ATTACK_SLASH }
