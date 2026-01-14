@@ -16,6 +16,7 @@ public class Player {
     private int currentDirection = 2; // 1=left, 2=right
     private boolean spaceWasPressed = false; // Prevent holding space
     private ArrayList<EnemyDrone> enemies; // Reference to enemies list
+    private ArrayList<EnemyRobot> robots; // Reference to Robot list
 
     public float attackCooldown = 0f; // time left until next attack
 
@@ -25,9 +26,11 @@ public class Player {
         this.map = map;
     }
 
-    public void setEnemies(ArrayList<EnemyDrone> enemies) {
+    public void setEnemies(ArrayList<EnemyDrone> enemies,ArrayList<EnemyRobot> robots) {
         this.enemies = enemies;
+        this.robots = robots;
     }
+
 
     public void show() {
         GameApp.addSound("Attack-Sound", "audio/attack-sound.mp3");
@@ -119,6 +122,7 @@ public class Player {
 
     public void mainAttack() {
         if (enemies == null) return;
+        if (robots == null) return;
         GameApp.playSound("Attack-Sound", 0.5f);
 
 
@@ -130,6 +134,15 @@ public class Player {
             float attackRange = SpriteConfig.ATTACK_RANGE;
             if (distance <= attackRange) {
                 enemyDrone.takeDamage(1);
+            }
+        }
+        for (EnemyRobot enemyRobot : robots) {
+            float distance = calculateDistance(x, y, enemyRobot.getX(), enemyRobot.getY());
+
+            // Attack range in pixels
+            float attackRange = SpriteConfig.ATTACK_RANGE;
+            if (distance <= attackRange) {
+                enemyRobot.takeDamage(1);
             }
         }
     }

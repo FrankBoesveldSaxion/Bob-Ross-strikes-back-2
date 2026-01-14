@@ -6,10 +6,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import nl.saxion.game.game.entities.EnemyRobot;
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.game.game.entities.Score;
 import nl.saxion.game.game.systems.DifficultySystem;
 import nl.saxion.game.game.systems.EnemyDroneConfig;
+import nl.saxion.game.game.systems.EnemyRobotConfig;
 import nl.saxion.game.game.systems.GameState;
 import nl.saxion.gameapp.GameApp;
 import nl.saxion.gameapp.screens.ScalableGameScreen;
@@ -29,6 +31,7 @@ public class WorldMap extends ScalableGameScreen {
 
     // Holds all enemies in the world
     private final ArrayList<EnemyDrone> enemies = new ArrayList<>();
+    private final ArrayList<EnemyRobot> robots = new ArrayList<>();
 
     private OrthographicCamera camara;
 
@@ -49,7 +52,9 @@ public class WorldMap extends ScalableGameScreen {
 
         // Reset enemy and score.
         enemies.clear();
+        robots.clear();
         GameState.reset();
+
 
         // Load the TMX tilemap
         tiledMap = new TmxMapLoader().load("maps/NewMap/DefenitiveMap.tmx");
@@ -86,6 +91,17 @@ public class WorldMap extends ScalableGameScreen {
                 return; // stop rendering this frame
             }
         }
+        for (EnemyRobot enemyRobot : robots) {
+            float dx = enemyRobot.getX() - player.getX();
+            float dy = enemyRobot.getY() - player.getY();
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < EnemyRobotConfig.PLAYER_DEATH_DISTANCE) {
+                GameApp.switchScreen("GameOverScreen");
+                return; // stop rendering this frame
+            }
+        }
+
 
         super.render(delta);
         GameApp.clearScreen();
@@ -106,7 +122,8 @@ public class WorldMap extends ScalableGameScreen {
                 delta,
                 tiledMap,
                 player,
-                enemies
+                enemies,
+                robots
         );
 
         GameApp.endSpriteRendering();

@@ -3,6 +3,7 @@ package nl.saxion.game.game.systems;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import nl.saxion.game.game.entities.EnemyDrone;
+import nl.saxion.game.game.entities.EnemyRobot;
 import nl.saxion.game.game.entities.Player;
 import nl.saxion.gameapp.GameApp;
 
@@ -11,24 +12,28 @@ import java.util.ArrayList;
 public class DifficultySystem {
 
 
-    private boolean spawnedOnce = false;
+    private boolean spawnedDroneOnce = false;
+    private boolean spawnedRobotOnce = false;
 
     public void spawnEnemiesBasedOnScore(
             float delta,
             TiledMap tiledMap,
             Player player,
-            ArrayList<EnemyDrone> enemies
+            ArrayList<EnemyDrone> enemies,
+            ArrayList<EnemyRobot> robots
     ) {
         // every 1 enemy based on de config.
         int enemyDroneSpawnPerSecond = EnemyDroneConfig.ENEMY_SPAWN_PER_SECOND;
+        int enemyRobotSpawnPerSecond = EnemyRobotConfig.ENEMY_SPAWN_PER_SECOND;
         // increase difficulty after 25 seconds of playing.
         if (GameState.time == 25) {
             enemyDroneSpawnPerSecond = EnemyDroneConfig.ENEMY_SPAWN_PER_SECOND / 2;
+            enemyRobotSpawnPerSecond = EnemyRobotConfig.ENEMY_SPAWN_PER_SECOND / 2;
         }
 
         if (GameState.time % enemyDroneSpawnPerSecond == 0) {
-            if (!spawnedOnce) {
-                spawnedOnce = true; // prevents more than 1 spawn
+            if (!spawnedDroneOnce) {
+                spawnedDroneOnce = true; // prevents more than 1 spawn
 
                 // spawn 5 per time
                 for (int i = 0; i < 5; i++) {
@@ -39,12 +44,32 @@ public class DifficultySystem {
                 }
             }
         } else {
-            spawnedOnce = false;
+            spawnedDroneOnce = false;
         }
+
+        if (GameState.time % enemyRobotSpawnPerSecond == 0) {
+            if (!spawnedRobotOnce) {
+                spawnedRobotOnce = true; // prevents more than 1 spawn
+
+                // spawn 5 per time
+                for (int i = 0; i < 5; i++) {
+                    float[] pos = getRandomSpawn(tiledMap);
+                    EnemyRobot enemy = new EnemyRobot(pos[0], pos[1], tiledMap, player);
+                    enemy.show();
+                    robots.add(enemy);
+                }
+            }
+        } else {
+            spawnedRobotOnce = false;
+        }
+
 
         //Render enemies
         for (EnemyDrone enemy : enemies) {
             enemy.render(delta, enemies);
+        }
+        for (EnemyRobot robot : robots) {
+            robot.render(delta, robots);
         }
 
         //Handle death
@@ -54,9 +79,15 @@ public class DifficultySystem {
                 GameState.increaseScoreBy(EnemyDroneConfig.SCORE_INCREASE_WHEN_DEAD);
             }
         }
+        for (int i = robots.size() - 1; i >= 0; i--) {
+            if (robots.get(i).isDead()) {
+                robots.remove(i);
+                GameState.increaseScoreBy(EnemyRobotConfig.SCORE_INCREASE_WHEN_DEAD);
+            }
+        }
 
         // Update player reference
-        player.setEnemies(enemies);
+        player.setEnemies(enemies,robots);
     }
 
 
